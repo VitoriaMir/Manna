@@ -1,0 +1,30 @@
+import { Inter } from 'next/font/google'
+import { ThemeProvider } from 'next-themes'
+import { AuthProvider } from '@/components/providers/AuthProvider'
+import './globals.css'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata = {
+    title: 'Manna - Leia, publique e descubra manhwas',
+    description: 'Plataforma de leitura e publicação de manhwas com experiência de leitura contínua',
+}
+
+export default function RootLayout({ children }) {
+    return (
+        <html lang="pt-BR" suppressHydrationWarning>
+            <body className={inter.className}>
+                <AuthProvider>
+                    <ThemeProvider
+                        attribute="class"
+                        defaultTheme="dark"
+                        enableSystem
+                        disableTransitionOnChange
+                    >
+                        {children}
+                    </ThemeProvider>
+                </AuthProvider>
+            </body>
+        </html>
+    )
+}
