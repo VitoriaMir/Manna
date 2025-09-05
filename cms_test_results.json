@@ -8,49 +8,49 @@
       "test": "Content GET - No Authentication",
       "success": true,
       "details": "Correctly returned 401 Unauthorized. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:57.689013",
+      "timestamp": "2025-09-05T00:34:37.544591",
       "response_data": null
     },
     {
       "test": "Content POST - No Authentication",
       "success": true,
       "details": "Correctly returned 401 Unauthorized. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:57.705742",
+      "timestamp": "2025-09-05T00:34:37.553575",
       "response_data": null
     },
     {
       "test": "Content PUT - No Authentication",
       "success": true,
       "details": "Correctly returned 401 Unauthorized. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:57.716737",
+      "timestamp": "2025-09-05T00:34:37.561576",
       "response_data": null
     },
     {
       "test": "Content DELETE - No Authentication",
       "success": true,
       "details": "Correctly returned 401 Unauthorized. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:57.726812",
+      "timestamp": "2025-09-05T00:34:37.570576",
       "response_data": null
     },
     {
       "test": "Content Approve - No Authentication",
       "success": true,
       "details": "Correctly returned 401 Unauthorized. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:58.661142",
+      "timestamp": "2025-09-05T00:34:37.592584",
       "response_data": null
     },
     {
       "test": "Upload - No Authentication",
       "success": true,
       "details": "Correctly returned 401 Unauthorized. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:59.545195",
+      "timestamp": "2025-09-05T00:34:37.601579",
       "response_data": null
     },
     {
       "test": "CORS Headers - /content",
       "success": true,
       "details": "CORS headers: {'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': '*, Content-Type, Authorization'}",
-      "timestamp": "2025-08-28T20:38:59.555351",
+      "timestamp": "2025-09-05T00:34:37.610587",
       "response_data": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -61,7 +61,7 @@
       "test": "CORS Headers - /upload",
       "success": true,
       "details": "CORS headers: {'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, POST, OPTIONS', 'Access-Control-Allow-Headers': '*, Content-Type, Authorization'}",
-      "timestamp": "2025-08-28T20:38:59.565293",
+      "timestamp": "2025-09-05T00:34:37.621604",
       "response_data": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, POST, OPTIONS",
@@ -72,35 +72,35 @@
       "test": "Content POST - Validation (Missing Fields)",
       "success": true,
       "details": "Correctly returned 401. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:59.574989",
+      "timestamp": "2025-09-05T00:34:37.631585",
       "response_data": null
     },
     {
       "test": "Content PUT - Validation (Missing ID)",
       "success": true,
       "details": "Correctly returned 401. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:59.584693",
+      "timestamp": "2025-09-05T00:34:37.640580",
       "response_data": null
     },
     {
       "test": "Content DELETE - Validation (Missing ID)",
       "success": true,
       "details": "Correctly returned 401. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:59.593738",
+      "timestamp": "2025-09-05T00:34:37.650577",
       "response_data": null
     },
     {
       "test": "Content Approve - Validation (Invalid Action)",
       "success": true,
       "details": "Correctly returned 401. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:59.622261",
+      "timestamp": "2025-09-05T00:34:37.662579",
       "response_data": null
     },
     {
       "test": "API Response Format - JSON",
       "success": true,
       "details": "Content endpoint returns JSON format. Status: 401",
-      "timestamp": "2025-08-28T20:38:59.631929",
+      "timestamp": "2025-09-05T00:34:37.672587",
       "response_data": {
         "error": "Authentication required"
       }
@@ -109,49 +109,49 @@
       "test": "API Response Headers - Content-Type",
       "success": true,
       "details": "Content-Type header: application/json",
-      "timestamp": "2025-08-28T20:38:59.631971",
+      "timestamp": "2025-09-05T00:34:37.673576",
       "response_data": null
     },
     {
       "test": "Content Status Filter - draft",
       "success": true,
       "details": "Status filter 'draft' is recognized (401 auth required, not 500 server error)",
-      "timestamp": "2025-08-28T20:38:59.640482",
+      "timestamp": "2025-09-05T00:34:37.682584",
       "response_data": null
     },
     {
       "test": "Content Status Filter - review",
       "success": true,
       "details": "Status filter 'review' is recognized (401 auth required, not 500 server error)",
-      "timestamp": "2025-08-28T20:38:59.648806",
+      "timestamp": "2025-09-05T00:34:37.691595",
       "response_data": null
     },
     {
       "test": "Content Status Filter - published",
       "success": true,
       "details": "Status filter 'published' is recognized (401 auth required, not 500 server error)",
-      "timestamp": "2025-08-28T20:38:59.656728",
+      "timestamp": "2025-09-05T00:34:37.700584",
       "response_data": null
     },
     {
       "test": "Content Status Filter - archived",
       "success": true,
       "details": "Status filter 'archived' is recognized (401 auth required, not 500 server error)",
-      "timestamp": "2025-08-28T20:38:59.664890",
+      "timestamp": "2025-09-05T00:34:37.709576",
       "response_data": null
     },
     {
       "test": "Upload - File Type Validation",
       "success": true,
       "details": "Non-image file correctly rejected with 401. Response: {'error': 'Authentication required'}",
-      "timestamp": "2025-08-28T20:38:59.672915",
+      "timestamp": "2025-09-05T00:34:37.718595",
       "response_data": null
     },
     {
       "test": "Database Connection Handling",
       "success": true,
       "details": "API handles database operations gracefully. Status: 401",
-      "timestamp": "2025-08-28T20:38:59.680413",
+      "timestamp": "2025-09-05T00:34:37.726578",
       "response_data": null
     }
   ]

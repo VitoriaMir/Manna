@@ -1,4 +1,4 @@
-// File: C:\Users\vitor\OneDrive\Documentos\GITHUB\Projetos\Manna\app\layout.js
+// File: C:\Users\vitor\OneDrive\Documentos\GITHUB\Projetos\Manna-1\app\layout.js
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

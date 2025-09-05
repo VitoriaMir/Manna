@@ -1,4 +1,4 @@
-// File: C:\Users\vitor\OneDrive\Documentos\GITHUB\Projetos\Manna\app\api\auth\[...auth0]\route.js
+// File: C:\Users\vitor\OneDrive\Documentos\GITHUB\Projetos\Manna-1\app\api\auth\[...auth0]\route.js
 import * as entry from '../../../../../../app/api/auth/[...auth0]/route.js'
 import type { NextRequest } from 'next/server.js'
 
