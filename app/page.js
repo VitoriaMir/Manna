@@ -22,6 +22,7 @@ import { LogoIcon } from '@/components/ui/logo'
 import ProfilePro from '@/components/ui/ProfilePro'
 import { ProfileApiDemo } from '@/components/ui/ProfileApiDemo'
 import { UserSettings } from '@/components/ui/UserSettings'
+import { ManhwaHomePage } from '@/components/ui/ManhwaHomePage'
 import {
     Book,
     BookOpen,
@@ -58,6 +59,7 @@ import { useTheme } from 'next-themes'
 
 export default function App() {
     const [currentView, setCurrentView] = useState('home')
+    const [showNewHomePage, setShowNewHomePage] = useState(true) // Nova home page por padrão
     const [manhwas, setManhwas] = useState([])
     const [currentManhwa, setCurrentManhwa] = useState(null)
     const [currentChapter, setCurrentChapter] = useState(0)
@@ -1166,6 +1168,13 @@ export default function App() {
 
                     <div className="flex items-center gap-2">
                         <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowNewHomePage(!showNewHomePage)}
+                        >
+                            {showNewHomePage ? 'Home Clássica' : 'Nova Home'}
+                        </Button>
+                        <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -1353,6 +1362,25 @@ export default function App() {
                 </div>
             </RoleGuard>
         )
+    }
+
+    // Mostrar nova home page se habilitada
+    if (showNewHomePage && currentView === 'home') {
+        return (
+            <ManhwaHomePage
+                onNavigate={(view, data) => {
+                    if (view === 'reader' && data) {
+                        setCurrentManhwa(data);
+                        setCurrentChapter(0);
+                        setCurrentView('reader');
+                    } else {
+                        setCurrentView(view);
+                    }
+                }}
+                onShowProfile={() => setCurrentView('profile')}
+                currentUser={useUser()?.user}
+            />
+        );
     }
 
     return <HomePage />
