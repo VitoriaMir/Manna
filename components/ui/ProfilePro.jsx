@@ -13,10 +13,11 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { LogoIcon } from '@/components/ui/logo';
+import { useUserProfile } from '@/hooks/use-user-profile';
 import {
   ChevronLeft, Mail, Shield, Calendar,
   BookOpen, Heart, Bookmark, Flame, Pencil,
-  Settings, Activity
+  Settings, Activity, RefreshCw
 } from 'lucide-react';
 
 // Fetcher function para SWR (futuro)
@@ -42,54 +43,40 @@ function StatCard({ icon: Icon, label, value, color = "text-primary" }) {
 }
 
 export default function ProfilePro({ onBack }) {
-  const { user, isLoading } = useUser();
-  const [loadingProfile] = useState(false); // Para futuro uso com SWR
+  const { user } = useUser();
+  const { 
+    profileData, 
+    isLoading: loading, 
+    error, 
+    updateProfile, 
+    addActivity, 
+    revalidate,
+    isUpdating 
+  } = useUserProfile();
 
-  const userRoles = user?.['https://manna-app.com/roles'] || ['reader'];
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Dados de fallback enquanto não há backend
-  const profileData = {
-    name: user?.name ?? 'Usuário',
-    email: user?.email ?? 'email@exemplo.com',
-    avatarUrl: user?.picture ?? undefined,
-    lastLoginISO: user?.updated_at ?? new Date().toISOString(),
-    roles: userRoles,
-    stats: {
-      readCount: 12,
-      favoritesCount: 8,
-      inProgressCount: 3,
-      readingStreakDays: 7,
-      monthlyGoalPercent: 65
-    },
-    achievements: [
-      { id: '1', label: 'Primeiro Manhwa', description: 'Leu seu primeiro manhwa' },
-      { id: '2', label: 'Leitor Dedicado', description: 'Leu por 7 dias seguidos' },
-      { id: '3', label: 'Colecionador', description: 'Favoritou 5+ manhwas' }
-    ],
-    recentActivity: [
-      {
-        id: '1',
-        type: 'read',
-        title: 'Leu "Solo Leveling" - Capítulo 25',
-        whenISO: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        meta: 'Ação, Fantasia'
-      },
-      {
-        id: '2',
-        type: 'favorite',
-        title: 'Adicionou "Tower of God" aos favoritos',
-        whenISO: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '3',
-        type: 'start',
-        title: 'Começou a ler "The Beginning After The End"',
-        whenISO: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-      }
-    ]
+  // Função para recarregar dados
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    revalidate();
+    setTimeout(() => setIsRefreshing(false), 1000);
   };
 
-  const loading = isLoading || loadingProfile;
+  // Função para simular adição de atividade (para demonstração)
+  const handleAddDemoActivity = async () => {
+    try {
+      await addActivity({
+        type: 'read',
+        title: 'Leu "Demon Slayer" - Capítulo 15',
+        manhwaTitle: 'Demon Slayer',
+        chapter: 15,
+        meta: 'Ação, Supernatural'
+      });
+    } catch (error) {
+      console.error('Erro ao adicionar atividade:', error);
+    }
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -129,6 +116,25 @@ export default function ProfilePro({ onBack }) {
           <CardContent className="p-6 text-center">
             <p className="text-muted-foreground mb-4">Você precisa estar logado para ver o perfil.</p>
             <Button onClick={onBack}>Voltar</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="p-6 text-center">
+            <p className="text-red-500 mb-4">Erro ao carregar perfil: {error}</p>
+            <div className="flex gap-2 justify-center">
+              <Button onClick={handleRefresh} disabled={isRefreshing}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Tentar Novamente
+              </Button>
+              <Button variant="outline" onClick={onBack}>Voltar</Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -219,13 +225,17 @@ export default function ProfilePro({ onBack }) {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button variant="secondary">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Configurações
+                      <Button 
+                        variant="secondary" 
+                        onClick={handleRefresh}
+                        disabled={isRefreshing}
+                      >
+                        <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        {isRefreshing ? 'Atualizando...' : 'Atualizar'}
                       </Button>
-                      <Button>
+                      <Button onClick={handleAddDemoActivity} disabled={isUpdating}>
                         <Pencil className="h-4 w-4 mr-2" />
-                        Editar Perfil
+                        {isUpdating ? 'Salvando...' : 'Add Demo Activity'}
                       </Button>
                     </div>
                   </div>
@@ -278,7 +288,7 @@ export default function ProfilePro({ onBack }) {
                     </div>
                     <Progress value={profileData.stats.monthlyGoalPercent} className="h-2" />
                     <p className="text-xs text-muted-foreground mt-2">
-                      Meta: Ler 20 manhwas este mês
+                      Meta: Ler {profileData?.stats?.monthlyGoal || 20} manhwas este mês ({profileData?.stats?.monthlyRead || 0} lidos)
                     </p>
                   </>
                 )}
@@ -348,12 +358,17 @@ export default function ProfilePro({ onBack }) {
                       profileData.achievements.map((achievement) => (
                         <div key={achievement.id} className="flex items-center gap-3">
                           <div className="h-8 w-8 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
-                            <span className="text-sm">🏆</span>
+                            <span className="text-sm">{achievement.icon || '🏆'}</span>
                           </div>
                           <div>
                             <p className="text-sm font-medium">{achievement.label}</p>
                             {achievement.description && (
                               <p className="text-xs text-muted-foreground">{achievement.description}</p>
+                            )}
+                            {achievement.unlockedAt && (
+                              <p className="text-xs text-green-600">
+                                Desbloqueado em {formatDate(achievement.unlockedAt)}
+                              </p>
                             )}
                           </div>
                         </div>
