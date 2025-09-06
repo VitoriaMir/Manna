@@ -47,7 +47,6 @@ export function UserSettings({ onBack }) {
     nickname: user?.nickname || '',
     bio: user?.user_metadata?.bio || '',
     location: user?.user_metadata?.location || '',
-    website: user?.user_metadata?.website || '',
     phone: user?.user_metadata?.phone_number || ''
   });
 
@@ -319,26 +318,14 @@ export function UserSettings({ onBack }) {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Localização</Label>
-                    <Input
-                      id="location"
-                      value={profileForm.location}
-                      onChange={(e) => setProfileForm(prev => ({ ...prev, location: e.target.value }))}
-                      placeholder="Cidade, Estado"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      value={profileForm.website}
-                      onChange={(e) => setProfileForm(prev => ({ ...prev, website: e.target.value }))}
-                      placeholder="https://seusite.com"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Localização</Label>
+                  <Input
+                    id="location"
+                    value={profileForm.location}
+                    onChange={(e) => setProfileForm(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="Cidade, Estado"
+                  />
                 </div>
 
                 <div className="space-y-2">

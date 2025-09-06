@@ -13,7 +13,7 @@ export async function PUT(req) {
         const body = await req.json();
 
         // Validar dados de entrada
-        const allowedFields = ['name', 'nickname', 'bio', 'location', 'website', 'phone'];
+        const allowedFields = ['name', 'nickname', 'bio', 'location', 'phone'];
         const updateData = {};
 
         for (const field of allowedFields) {
@@ -23,10 +23,6 @@ export async function PUT(req) {
         }
 
         // Validações específicas
-        if (updateData.website && !updateData.website.startsWith('http')) {
-            updateData.website = 'https://' + updateData.website;
-        }
-
         if (updateData.phone) {
             // Remover caracteres não numéricos para validação
             const phoneNumbers = updateData.phone.replace(/\D/g, '');
@@ -51,7 +47,6 @@ export async function PUT(req) {
             user_metadata: {
                 bio: updateData.bio,
                 location: updateData.location,
-                website: updateData.website,
                 phone_number: updateData.phone,
                 updated_at: new Date().toISOString()
             }

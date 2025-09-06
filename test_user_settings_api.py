@@ -25,7 +25,6 @@ def test_profile_settings_api():
         "nickname": "joao_teste",
         "bio": "Desenvolvedor apaixonado por manhwas",
         "location": "São Paulo, SP",
-        "website": "https://joaosilva.dev",
         "phone": "(11) 99999-9999",
     }
 
