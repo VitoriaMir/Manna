@@ -38,6 +38,13 @@ lib-cov
 coverage/
 *.lcov
 
+# Test results and reports (generated files)
+*_test_results.json
+*test_results.json
+cms_test_results.json
+test-results/
+junit.xml
+
 # Vercel
 .vercel
 
