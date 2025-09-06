@@ -1,21 +1,42 @@
-node_modules
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Environment variables (NUNCA subir!)
+.env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 env.txt
 
 # Next.js
 /.next/
 /out/
 
-# Production
+# Production builds
 /build
+/dist
 
-# Debug
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
-# Local env files
-.env*.local
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+lib-cov
+coverage/
+*.lcov
 
 # Vercel
 .vercel
@@ -23,6 +44,32 @@ yarn-error.log*
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+.Python
 .venv/
 venv/
+ENV/
+env.bak/
+venv.bak/
 .pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
