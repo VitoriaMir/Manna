@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { LogoIcon } from '@/components/ui/logo';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { UserSettings } from '@/components/ui/UserSettings';
 import {
   ChevronLeft, Mail, Shield, Calendar,
   BookOpen, Heart, Bookmark, Flame, Pencil,
@@ -55,6 +56,7 @@ export default function ProfilePro({ onBack }) {
   } = useUserProfile();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Função para recarregar dados
   const handleRefresh = async () => {
@@ -151,6 +153,11 @@ export default function ProfilePro({ onBack }) {
     );
   }
 
+  // Mostrar componente de configurações se solicitado
+  if (showSettings) {
+    return <UserSettings onBack={() => setShowSettings(false)} />;
+  }
+
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -185,6 +192,7 @@ export default function ProfilePro({ onBack }) {
               <h1 className="text-xl font-bold">Perfil do Usuário</h1>
             </div>
           </div>
+          <div></div>
         </div>
       </header>
 
@@ -265,6 +273,13 @@ export default function ProfilePro({ onBack }) {
                       <Button onClick={handleAddDemoActivity} disabled={isUpdating}>
                         <Pencil className="h-4 w-4 mr-2" />
                         {isUpdating ? 'Salvando...' : 'Add Demo Activity'}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowSettings(true)}
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Editar Perfil
                       </Button>
                     </div>
                   </div>

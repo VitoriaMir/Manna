@@ -21,6 +21,7 @@ import { ContentManager } from '@/components/cms/ContentManager'
 import { LogoIcon } from '@/components/ui/logo'
 import ProfilePro from '@/components/ui/ProfilePro'
 import { ProfileApiDemo } from '@/components/ui/ProfileApiDemo'
+import { UserSettings } from '@/components/ui/UserSettings'
 import {
     Book,
     BookOpen,
