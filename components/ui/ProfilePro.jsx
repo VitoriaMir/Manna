@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { LogoIcon } from '@/components/ui/logo';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import ManhwaLibrary from '@/components/ui/ManhwaLibrary';
 import {
   ChevronLeft, Mail, Shield, Calendar,
   BookOpen, Heart, Bookmark, Flame, Pencil,
@@ -415,16 +416,7 @@ export default function ProfilePro({ onBack }) {
 
           {/* Library Tab */}
           <TabsContent value="library" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Minha Biblioteca</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Em breve: manhwas em andamento, fila de leitura e recomendações personalizadas.
-                </p>
-              </CardContent>
-            </Card>
+            <ManhwaLibrary />
           </TabsContent>
 
           {/* Activity Tab */}
