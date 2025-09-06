@@ -43,10 +43,10 @@ function StatCard({ icon: Icon, label, value, color = "text-primary" }) {
 }
 
 export default function ProfilePro({ onBack }) {
-  const { user } = useUser();
+  const { user, isLoading: loading } = useUser();
   const { 
     profileData, 
-    isLoading: loading, 
+    isLoading, 
     error, 
     updateProfile, 
     addActivity, 
@@ -122,6 +122,35 @@ export default function ProfilePro({ onBack }) {
     );
   }
 
+  if (loading || isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="p-6 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Carregando perfil...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="p-6 text-center">
+            <p className="text-destructive mb-4">Erro ao carregar perfil: {error}</p>
+            <div className="flex gap-2 justify-center">
+              <Button onClick={onBack} variant="outline">Voltar</Button>
+              <Button onClick={revalidate}>Tentar Novamente</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -171,8 +200,8 @@ export default function ProfilePro({ onBack }) {
                   <Skeleton className="h-24 w-24 rounded-full border" />
                 ) : (
                   <Avatar className="h-24 w-24 ring-4 ring-background -mt-2">
-                    <AvatarImage src={profileData.avatarUrl} alt={profileData.name} />
-                    <AvatarFallback className="text-2xl">{profileData.name?.[0]?.toUpperCase() ?? 'U'}</AvatarFallback>
+                    <AvatarImage src={profileData?.avatarUrl} alt={profileData?.name || 'Avatar'} />
+                    <AvatarFallback className="text-2xl">{profileData?.name?.[0]?.toUpperCase() ?? 'U'}</AvatarFallback>
                   </Avatar>
                 )}
 
@@ -180,7 +209,7 @@ export default function ProfilePro({ onBack }) {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                       <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
-                        {loading ? <Skeleton className="h-8 w-64" /> : profileData.name}
+                        {loading ? <Skeleton className="h-8 w-64" /> : (profileData?.name || 'Nome não disponível')}
                       </h2>
 
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -189,7 +218,7 @@ export default function ProfilePro({ onBack }) {
                         ) : (
                           <span className="inline-flex items-center gap-1">
                             <Mail className="h-4 w-4" />
-                            {profileData.email}
+                            {profileData?.email || 'Email não disponível'}
                           </span>
                         )}
                         <Separator orientation="vertical" className="hidden md:block h-4" />
@@ -198,7 +227,7 @@ export default function ProfilePro({ onBack }) {
                         ) : (
                           <span className="inline-flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            Último login: {formatDate(profileData.lastLoginISO ?? Date.now())}
+                            Último login: {formatDate(profileData?.lastLoginISO ?? Date.now())}
                           </span>
                         )}
                       </div>
@@ -264,10 +293,10 @@ export default function ProfilePro({ onBack }) {
                 [...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full rounded-xl" />)
               ) : (
                 <>
-                  <StatCard icon={BookOpen} label="Manhwas Lidos" value={profileData.stats.readCount} />
-                  <StatCard icon={Heart} label="Favoritos" value={profileData.stats.favoritesCount} color="text-red-500" />
-                  <StatCard icon={Bookmark} label="Em Andamento" value={profileData.stats.inProgressCount} color="text-blue-500" />
-                  <StatCard icon={Flame} label="Streak (dias)" value={profileData.stats.readingStreakDays} color="text-orange-500" />
+                  <StatCard icon={BookOpen} label="Manhwas Lidos" value={profileData?.stats?.readCount || 0} />
+                  <StatCard icon={Heart} label="Favoritos" value={profileData?.stats?.favoritesCount || 0} color="text-red-500" />
+                  <StatCard icon={Bookmark} label="Em Andamento" value={profileData?.stats?.inProgressCount || 0} color="text-blue-500" />
+                  <StatCard icon={Flame} label="Streak (dias)" value={profileData?.stats?.readingStreakDays || 0} color="text-orange-500" />
                 </>
               )}
             </div>
@@ -284,9 +313,9 @@ export default function ProfilePro({ onBack }) {
                   <>
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span className="text-muted-foreground">Progresso de leitura</span>
-                      <span className="font-medium">{profileData.stats.monthlyGoalPercent}%</span>
+                      <span className="font-medium">{profileData?.stats?.monthlyGoalPercent || 0}%</span>
                     </div>
-                    <Progress value={profileData.stats.monthlyGoalPercent} className="h-2" />
+                    <Progress value={profileData?.stats?.monthlyGoalPercent || 0} className="h-2" />
                     <p className="text-xs text-muted-foreground mt-2">
                       Meta: Ler {profileData?.stats?.monthlyGoal || 20} manhwas este mês ({profileData?.stats?.monthlyRead || 0} lidos)
                     </p>
@@ -454,20 +483,20 @@ export default function ProfilePro({ onBack }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="font-medium">Nome:</p>
-                      <p className="text-muted-foreground">{profileData.name}</p>
+                      <p className="text-muted-foreground">{profileData?.name || 'Nome não disponível'}</p>
                     </div>
                     <div>
                       <p className="font-medium">Email:</p>
-                      <p className="text-muted-foreground">{profileData.email}</p>
+                      <p className="text-muted-foreground">{profileData?.email || 'Email não disponível'}</p>
                     </div>
                     <div>
                       <p className="font-medium">Último login:</p>
-                      <p className="text-muted-foreground">{formatDate(profileData.lastLoginISO ?? Date.now())}</p>
+                      <p className="text-muted-foreground">{formatDate(profileData?.lastLoginISO ?? Date.now())}</p>
                     </div>
                     <div>
                       <p className="font-medium">Tipo de conta:</p>
                       <div className="flex gap-1">
-                        {profileData.roles.map((role) => (
+                        {(profileData?.roles || ['reader']).map((role) => (
                           <Badge key={role} variant="secondary" className="text-xs">
                             {getRoleLabel(role)}
                           </Badge>

@@ -20,6 +20,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { ContentManager } from '@/components/cms/ContentManager'
 import { LogoIcon } from '@/components/ui/logo'
 import ProfilePro from '@/components/ui/ProfilePro'
+import { ProfileApiDemo } from '@/components/ui/ProfileApiDemo'
 import {
     Book,
     BookOpen,
@@ -1322,7 +1323,12 @@ export default function App() {
     if (currentView === 'profile') {
         return (
             <RoleGuard requiredRoles={['creator', 'reader']} fallback={<ProfilePro onBack={() => setCurrentView('home')} />}>
-                <ProfilePro onBack={() => setCurrentView('home')} />
+                <div className="min-h-screen bg-background">
+                    <ProfilePro onBack={() => setCurrentView('home')} />
+                    <div className="container mx-auto px-4 pb-8">
+                        <ProfileApiDemo />
+                    </div>
+                </div>
             </RoleGuard>
         )
     }
