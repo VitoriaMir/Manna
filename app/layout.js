@@ -8,6 +8,11 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata = {
     title: 'Manna - Leia, publique e descubra manhwas',
     description: 'Plataforma de leitura e publicação de manhwas com experiência de leitura contínua',
+    icons: {
+        icon: '/favicon.svg',
+        shortcut: '/favicon.svg',
+        apple: '/favicon.svg',
+    },
 }
 
 export default function RootLayout({ children }) {

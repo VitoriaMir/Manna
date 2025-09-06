@@ -18,6 +18,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Slider } from '@/components/ui/slider'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { ContentManager } from '@/components/cms/ContentManager'
+import { LogoIcon } from '@/components/ui/logo'
 import {
     Book,
     BookOpen,
@@ -515,9 +516,7 @@ export default function App() {
                                 Voltar
                             </Button>
                             <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-lg flex items-center justify-center">
-                                    <span className="text-white font-bold text-sm">M</span>
-                                </div>
+                                <LogoIcon />
                                 <h1 className="text-xl font-bold">Perfil do Usuário</h1>
                             </div>
                         </div>
@@ -618,9 +617,7 @@ export default function App() {
                 <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b">
                     <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-lg flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">M</span>
-                            </div>
+                            <LogoIcon />
                             <div>
                                 <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">
                                     Manna Creator Studio
@@ -880,9 +877,7 @@ export default function App() {
                                 Voltar
                             </Button>
                             <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-lg flex items-center justify-center">
-                                    <span className="text-white font-bold text-sm">M</span>
-                                </div>
+                                <LogoIcon />
                                 <h1 className="text-xl font-bold">Buscar Manhwas</h1>
                             </div>
                         </div>
@@ -1160,10 +1155,8 @@ export default function App() {
             <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">M</span>
-                        </div>
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">
+                        <LogoIcon />
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">
                             Manna
                         </h1>
                     </div>
