@@ -19,6 +19,7 @@ import { Slider } from '@/components/ui/slider'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { ContentManager } from '@/components/cms/ContentManager'
 import { LogoIcon } from '@/components/ui/logo'
+import ProfilePro from '@/components/ui/ProfilePro'
 import {
     Book,
     BookOpen,
@@ -1320,8 +1321,8 @@ export default function App() {
 
     if (currentView === 'profile') {
         return (
-            <RoleGuard requiredRoles={['creator', 'reader']} fallback={<ProfilePage />}>
-                <ProfilePage />
+            <RoleGuard requiredRoles={['creator', 'reader']} fallback={<ProfilePro onBack={() => setCurrentView('home')} />}>
+                <ProfilePro onBack={() => setCurrentView('home')} />
             </RoleGuard>
         )
     }
