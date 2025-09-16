@@ -32,8 +32,8 @@ const featuredManhwas = [
     id: 1,
     title: "Ser Uma Vilã Não é Muito Melhor?",
     description: "A vida de uma vilã pode ser surpreendentemente melhor do que ser a heroína...",
-    cover: "/images/manhwas/ser-uma-vila-nao-e-muito-melhor.webp",
-    banner: "/images/manhwas/ser-uma-vila-nao-e-muito-melhor.webp",
+    cover: "/images/manhwas/ser-uma-vila-nao-e-muito-melhor.jpg",
+    banner: "/images/manhwas/ser-uma-vila-nao-e-muito-melhor.jpg",
     author: "Mang Go Kim, Mundo & Yoleh",
     genres: ["Romance", "Drama", "Fantasia"],
     rating: 4.8,
@@ -116,6 +116,93 @@ const newSeries = [
     category: "Shoujo",
     genres: ["Romance"],
     badge: "NOVO"
+  }
+];
+
+const ultimosLancamentos = [
+  {
+    id: 10,
+    title: "Meu Marido de Toda Vida Só Me Ama",
+    cover: "/images/manhwas/meu-marido-toda-vida.jpg",
+    chapter: "Capítulo 07",
+    timeAgo: "há 2 minutos"
+  },
+  {
+    id: 11,
+    title: "Desejos Bestiais",
+    cover: "/images/manhwas/desejos-bestiais.jpg", 
+    chapter: "Capítulo 21",
+    timeAgo: "há cerca de 3 horas"
+  },
+  {
+    id: 12,
+    title: "De Volta à Primavera",
+    cover: "/images/manhwas/de-volta-primavera.jpg",
+    chapter: "Capítulo 42.5",
+    timeAgo: "há cerca de 5 horas"
+  },
+  {
+    id: 13,
+    title: "Amigos não fazem isso",
+    cover: "/images/manhwas/amigos-nao-fazem.jpg",
+    chapter: "Capítulo 71",
+    timeAgo: "há cerca de 11 horas"
+  },
+  {
+    id: 14,
+    title: "Eu me tornei a Amiga do Protagonista",
+    cover: "/images/manhwas/amiga-protagonista.jpg", 
+    chapter: "Capítulo 92",
+    timeAgo: "há 1 dia"
+  },
+  {
+    id: 15,
+    title: "Lágrimas em uma Flor Murcha",
+    cover: "/images/manhwas/tear-on-a-flowers.jpg",
+    chapter: "Capítulo 68", 
+    timeAgo: "há 1 dia"
+  },
+  {
+    id: 16,
+    title: "Eu Sou Uma Santa Falsa Mas os Deuses Estão Obcecados",
+    cover: "/images/manhwas/santa-falsa.jpg",
+    chapter: "Capítulo 105",
+    timeAgo: "há 3 dias"
+  },
+  {
+    id: 17,
+    title: "Como Fazer Meu Marido Ficar Louco",
+    cover: "/images/manhwas/marido-louco.jpg",
+    chapter: "Capítulo 119", 
+    timeAgo: "há 3 dias"
+  },
+  {
+    id: 18,
+    title: "Esse Casamento com Certeza Vai Dar Certo",
+    cover: "/images/manhwas/casamento-certo.jpg",
+    chapter: "Capítulo 35",
+    timeAgo: "há 3 dias"
+  },
+  {
+    id: 19,
+    title: "O Desejo do Diabo",
+    cover: "/images/manhwas/desejo-diabo.jpg", 
+    chapter: "Capítulo 65",
+    timeAgo: "há 4 dias"
+  },
+  {
+    id: 20,
+    title: "A Promessa Não é Minha",
+    cover: "/images/manhwas/promessa-nao-minha.jpg",
+    chapter: "Capítulo 67",
+    timeAgo: "há 5 dias"
+  },
+  {
+    id: 21,
+    title: "Tornando-me a Ex-Esposa do Protagonista Masculino",
+    cover: "/images/manhwas/ex-esposa-protagonista.jpg",
+    chapter: "Capítulo 72",
+    timeAgo: "há 6 dias"
   }
 ];
 
@@ -486,6 +573,100 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
                   </div>
                 </CardContent>
               </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Últimos Lançamentos */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <div className="w-1 h-8 bg-gradient-to-b from-yellow-400 to-orange-500 rounded-full"></div>
+                <h2 className="text-3xl font-bold text-white">Últimos Lançamentos</h2>
+              </div>
+            </div>
+            <Button variant="outline" className="text-white border-white/30 hover:bg-white/10 flex items-center space-x-2">
+              <span>Ver Todos</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Button>
+          </div>
+          
+          <p className="text-gray-400 text-sm mb-8">Veja aqui as últimas atualizações que saíram</p>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {ultimosLancamentos.map((manhwa) => (
+              <div 
+                key={manhwa.id} 
+                className="bg-card text-card-foreground group relative overflow-hidden rounded-xl border border-white/10 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                onClick={() => onNavigate('reader', manhwa)}
+              >
+                <div className="relative aspect-[2/3] w-full overflow-hidden">
+                  <img
+                    src={manhwa.cover}
+                    alt={manhwa.title}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  
+                  {/* Gradiente overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
+                  
+                  {/* Chapter Badge estilo novo */}
+                  <div className="absolute top-3 left-0">
+                    <div className="bg-yellow-500 text-black rounded-r-md px-3 py-1 text-xs font-bold shadow-md relative">
+                      {manhwa.chapter}
+                      <div className="absolute -left-1 top-0 w-0 h-0 border-t-[14px] border-b-[14px] border-r-[4px] border-transparent border-r-yellow-600"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Título na parte inferior */}
+                  <div className="absolute bottom-0 left-0 right-0 p-3 space-y-2">
+                    <h3 className="font-extrabold text-sm leading-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] line-clamp-2">
+                      {manhwa.title}
+                    </h3>
+                    
+                    {/* Informações adicionais */}
+                    <div className="flex items-center justify-between text-xs text-gray-300">
+                      <div className="flex items-center space-x-1">
+                        <Clock className="w-3 h-3" />
+                        <span className="bg-black/40 px-2 py-1 rounded-md">{manhwa.timeAgo}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Overlay de hover com ações */}
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <div className="flex space-x-2">
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Adicionar aos favoritos
+                        }}
+                      >
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Adicionar à biblioteca
+                        }}
+                      >
+                        <Bookmark className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
