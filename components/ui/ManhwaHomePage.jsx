@@ -404,8 +404,15 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
               <BookOpen className="h-6 w-6 text-yellow-400" />
               <h2 className="text-3xl font-bold text-white">Novas séries</h2>
             </div>
-            <p className="text-gray-400 text-sm">Séries recentemente adicionadas</p>
+            <Button variant="outline" className="text-white border-white/30 hover:bg-white/10 flex items-center space-x-2">
+              <span>Ver Todos</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Button>
           </div>
+          
+          <p className="text-gray-400 text-sm mb-8">Séries recentemente adicionadas</p>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {newSeries.map((manhwa) => (
@@ -505,8 +512,11 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
                 <h2 className="text-3xl font-bold text-white">Em Alta</h2>
               </div>
             </div>
-            <Button variant="outline" className="text-white border-white/30 hover:bg-white/10">
-              Ver Todos
+            <Button variant="outline" className="text-white border-white/30 hover:bg-white/10 flex items-center space-x-2">
+              <span>Ver Todos</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </Button>
           </div>
 
