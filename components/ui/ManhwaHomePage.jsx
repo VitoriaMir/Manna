@@ -52,7 +52,8 @@ const featuredManhwas = [
     genres: ["Romance", "Fantasia", "Reencarnação"],
     rating: 4.7,
     views: "1.8M",
-    status: "Em andamento"
+    status: "Em andamento",
+    chapters: 98
   },
   {
     id: 3,
@@ -64,7 +65,35 @@ const featuredManhwas = [
     genres: ["Ação", "Fantasia", "Magia"],
     rating: 4.9,
     views: "3.2M",
-    status: "Completo"
+    status: "Completo",
+    chapters: 122
+  },
+  {
+    id: 4,
+    title: "A Duquesa com um Segredo Vazio",
+    description: "Uma duquesa que esconde um passado misterioso se vê envolvida em intrigas da corte...",
+    cover: "/images/manhwas/duquesa-segredo.jpg",
+    banner: "/images/manhwas/duquesa-segredo.jpg",
+    author: "Han So-young",
+    genres: ["Romance", "Drama", "Histórico"],
+    rating: 4.6,
+    views: "1.5M",
+    status: "Em andamento",
+    chapters: 38
+  },
+  {
+    id: 5,
+    title: "O Retorno da Princesa Exilada",
+    description: "Após anos de exílio, a princesa retorna para reclamar seu trono legítimo...",
+    cover: "/images/manhwas/princesa-exilada.jpg",
+    banner: "/images/manhwas/princesa-exilada.jpg",
+    author: "Park Ji-min",
+    genres: ["Ação", "Fantasia", "Política"],
+    rating: 4.5,
+    views: "1.2M",
+    status: "Em andamento",
+    isHot: true,
+    chapters: 29
   }
 ];
 
@@ -520,69 +549,111 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredManhwas.slice(0, 3).map((manhwa, index) => (
-              <Card 
-                key={manhwa.id} 
-                className="bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-300 cursor-pointer group overflow-hidden"
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {featuredManhwas.slice(0, 5).map((manhwa, index) => (
+              <div
+                key={manhwa.id}
+                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-yellow-400/50 transition-all duration-500 cursor-pointer hover:scale-105 hover:shadow-2xl"
                 onClick={() => onNavigate('reader', manhwa)}
               >
-                <CardContent className="p-0">
-                  <div className="flex">
-                    <div className="relative w-32 h-45 flex-shrink-0 overflow-hidden rounded-l-lg">
-                      <img
-                        src={manhwa.cover}
-                        alt={manhwa.title}
-                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-2 left-2">
-                        <Badge className="bg-red-600 text-white text-xs font-bold">
-                          #{index + 1}
-                        </Badge>
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                  <img
+                    src={manhwa.cover}
+                    alt={manhwa.title}
+                    className="w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                </div>
+                
+                {/* Content */}
+                <div className="relative z-10 p-4 h-72 flex flex-col">
+                  {/* Ranking Badge */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center text-black font-bold text-xs">
+                        #{index + 1}
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                        <span className="text-yellow-400 font-semibold text-sm">{manhwa.rating}</span>
                       </div>
                     </div>
                     
-                    <div className="flex-1 p-4">
-                      <h3 className="font-bold text-white text-lg mb-2 group-hover:text-yellow-400 transition-colors">
-                        {manhwa.title}
-                      </h3>
-                      
-                      <p className="text-gray-300 text-sm mb-3 line-clamp-2">
-                        {manhwa.description}
-                      </p>
-                      
-                      <div className="flex items-center space-x-4 text-sm text-gray-400 mb-3">
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          <span>{manhwa.rating}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Eye className="h-4 w-4" />
-                          <span>{manhwa.views}</span>
-                        </div>
-                        {manhwa.chapters && (
-                          <div className="flex items-center space-x-1">
-                            <BookOpen className="h-4 w-4" />
-                            <span>{manhwa.chapters} caps</span>
-                          </div>
-                        )}
+                    {manhwa.isHot && (
+                      <div className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
+                        <span>🔥</span>
+                        <span>HOT</span>
                       </div>
-                      
-                      <div className="flex flex-wrap gap-1">
-                        {manhwa.genres.slice(0, 2).map((genre) => (
-                          <Badge 
-                            key={genre} 
-                            variant="secondary"
-                            className="text-xs bg-white/20 text-white"
-                          >
-                            {genre}
-                          </Badge>
-                        ))}
+                    )}
+                  </div>
+                  
+                  {/* Title */}
+                  <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-yellow-400 transition-colors duration-300">
+                    {manhwa.title}
+                  </h3>
+                  
+                  {/* Description */}
+                  <p className="text-gray-300 text-xs mb-3 line-clamp-2 flex-grow">
+                    {manhwa.description}
+                  </p>
+                  
+                  {/* Genres */}
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {manhwa.genres.slice(0, 2).map((genre) => (
+                      <Badge 
+                        key={genre} 
+                        variant="secondary"
+                        className="text-xs bg-white/20 text-white border-white/30 hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
+                      >
+                        {genre}
+                      </Badge>
+                    ))}
+                  </div>
+                  
+                  {/* Stats */}
+                  <div className="flex items-center justify-between text-xs text-gray-400">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-1">
+                        <Eye className="h-3 w-3" />
+                        <span>{manhwa.views}</span>
                       </div>
+                      {manhwa.chapters && (
+                        <div className="flex items-center space-x-1">
+                          <BookOpen className="h-3 w-3" />
+                          <span>{manhwa.chapters} caps</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center space-x-1">
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <Heart className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-2 py-1 text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <Play className="h-3 w-3 mr-1" />
+                        Ler
+                      </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                
+                {/* Hover Glow Effect */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-yellow-400/20 to-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+              </div>
             ))}
           </div>
         </div>
