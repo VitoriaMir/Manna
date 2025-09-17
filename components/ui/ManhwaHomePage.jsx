@@ -25,8 +25,6 @@ import {
   Award,
   Calendar,
   Filter,
-  Grid,
-  List,
   Share2,
   Download,
   Plus
@@ -462,7 +460,6 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [viewMode, setViewMode] = useState('grid');
 
   // Auto-slide with pause on hover
   useEffect(() => {
@@ -777,24 +774,6 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 p-1">
-                <Button 
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className={viewMode === 'grid' ? 'bg-amber-500 text-black' : 'text-white'}
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className={viewMode === 'list' ? 'bg-amber-500 text-black' : 'text-white'}
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              </div>
               <Button variant="outline" className="text-white border-white/30 hover:bg-white/10 hover:border-amber-400/50 hover:text-amber-400 transition-all duration-300 px-6 py-3 rounded-2xl font-semibold">
                 Ver Todos
               </Button>
@@ -863,9 +842,6 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" className="text-white hover:text-green-400 p-3 rounded-2xl transition-all duration-300">
-                <Filter className="h-5 w-5" />
-              </Button>
               <Button variant="outline" className="text-white border-white/30 hover:bg-white/10 hover:border-green-400/50 hover:text-green-400 transition-all duration-300 px-6 py-3 rounded-2xl font-semibold">
                 Ver Todos
               </Button>

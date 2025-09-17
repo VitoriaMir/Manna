@@ -162,15 +162,14 @@ const SocialButton = React.memo(({ provider, icon: Icon, onClick, disabled, isLo
         variant="outline"
         onClick={onClick}
         disabled={disabled || isLoading}
-        className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300 py-6 rounded-2xl font-semibold backdrop-blur-sm group disabled:opacity-50 relative overflow-hidden"
+        className="w-full h-12 rounded-lg flex justify-center items-center font-medium gap-2.5 border border-white/20 bg-white/10 backdrop-blur-sm text-white cursor-pointer transition-all duration-200 ease-in-out hover:bg-white/20 hover:border-amber-400/40 hover:text-amber-100 disabled:opacity-50 disabled:cursor-not-allowed"
     >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
         {isLoading ? (
-            <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin" />
         ) : (
-            <Icon className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
+            <Icon className="h-5 w-5" />
         )}
-        <span>Continuar com {provider}</span>
+        <span className="text-xs font-medium">{provider}</span>
     </Button>
 ));
 
@@ -559,513 +558,381 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                 ))}
             </div>
 
-            <div className="relative z-10 min-h-screen flex">
-                {/* Enhanced left side with premium design */}
-                <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-8 xl:p-12 relative overflow-hidden min-h-screen">
-                    {/* Decorative elements */}
-                    <div className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-20 left-10 w-24 h-24 bg-gradient-to-br from-purple-400/20 to-blue-500/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-
-                    {/* Main content container with perfect centering */}
-                    <div className="w-full max-w-3xl space-y-8 flex flex-col justify-center items-center text-center">
-                        {/* Header with enhanced branding */}
-                        <div className="space-y-6 animate-slideInLeft relative z-10">
-                            <div className="flex items-center justify-center space-x-6 group">
-                                <div className="relative">
-                                    {/* Glowing ring effect */}
-                                    <div className="absolute -inset-6 bg-gradient-to-r from-amber-400/30 via-orange-500/30 to-amber-400/30 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse"></div>
-
-                                    {/* Logo container */}
-                                    <div className="relative bg-gradient-to-br from-amber-400/10 to-orange-500/10 backdrop-blur-xl rounded-2xl p-4 border border-amber-400/20 group-hover:border-amber-400/40 transition-all duration-500">
-                                        <LogoIcon className="text-amber-400 group-hover:text-amber-300 transition-all duration-500 transform group-hover:scale-110 group-hover:rotate-12 h-16 w-16 relative z-10" />
-                                        <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <span className="text-6xl font-black bg-gradient-to-r from-amber-400 via-amber-300 to-orange-400 bg-clip-text text-transparent drop-shadow-2xl">
-                                        MANNA
-                                    </span>
-                                    <div className="flex items-center justify-center space-x-2">
-                                        <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
-                                        <p className="text-amber-400/90 text-sm font-bold tracking-[0.2em] uppercase">
-                                            Manhwa Universe
-                                        </p>
-                                        <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-8">
-                                <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[0.9] drop-shadow-2xl">
-                                    {isLogin ? (
-                                        <>
-                                            <span className="bg-gradient-to-r from-white via-amber-100 to-white bg-clip-text text-transparent">
-                                                Bem-vindo
-                                            </span>
-                                            <br />
-                                            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent animate-pulse">
-                                                de volta!
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span className="bg-gradient-to-r from-white via-amber-100 to-white bg-clip-text text-transparent">
-                                                Entre na
-                                            </span>
-                                            <br />
-                                            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent animate-pulse">
-                                                revolução
-                                            </span>
-                                        </>
-                                    )}
-                                </h1>
-
-                                <p className="text-xl text-slate-300 leading-relaxed max-w-2xl font-medium">
-                                    {isLogin
-                                        ? '🚀 Continue sua jornada épica através de universos infinitos. Seus favoritos te aguardam!'
-                                        : '✨ Descubra um universo de histórias épicas, conecte-se com milhões de leitores e viva aventuras inesquecíveis!'
-                                    }
-                                </p>
-
-                                {/* Enhanced Statistics with animations */}
-                                <div className="flex items-center justify-center flex-wrap gap-6 lg:gap-8 xl:gap-10 pt-4">
-                                    <div className="text-center group cursor-pointer">
-                                        <div className="text-4xl font-black bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
-                                            15K+
-                                        </div>
-                                        <div className="text-sm text-slate-400 font-medium group-hover:text-slate-300 transition-colors">Manhwas</div>
-                                        <div className="w-full h-1 bg-gradient-to-r from-amber-400/0 via-amber-400/50 to-amber-400/0 rounded-full mt-1 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    </div>
-
-                                    <div className="text-center group cursor-pointer">
-                                        <div className="text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
-                                            1M+
-                                        </div>
-                                        <div className="text-sm text-slate-400 font-medium group-hover:text-slate-300 transition-colors">Leitores</div>
-                                        <div className="w-full h-1 bg-gradient-to-r from-green-400/0 via-green-400/50 to-green-400/0 rounded-full mt-1 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    </div>
-
-                                    <div className="text-center group cursor-pointer">
-                                        <div className="text-4xl font-black bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300">
-                                            5M+
-                                        </div>
-                                        <div className="text-sm text-slate-400 font-medium group-hover:text-slate-300 transition-colors">Capítulos</div>
-                                        <div className="w-full h-1 bg-gradient-to-r from-blue-400/0 via-blue-400/50 to-blue-400/0 rounded-full mt-1 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    </div>
-                                </div>
-                            </div>
+            <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
+                <Card className="w-full max-w-lg bg-white/10 backdrop-blur-2xl border-white/20 shadow-2xl animate-slideInRight rounded-3xl overflow-hidden">
+                    <CardContent className="p-8 space-y-6">
+                        {/* Logo header */}
+                        <div className="flex items-center justify-center space-x-3 mb-6">
+                            <LogoIcon className="text-amber-400 h-10 w-10" />
+                            <span className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">
+                                MANNA
+                            </span>
                         </div>
 
-                        {/* Premium features section with perfect centering */}
-                        <div className="space-y-4 relative z-10 w-full max-w-2xl">
-                            <div className="text-center mb-6">
-                                <h2 className="text-xl lg:text-2xl font-bold text-white mb-2">Por que escolher a MANNA?</h2>
-                                <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full mx-auto"></div>
-                            </div>
+                        {/* Form header */}
+                        <div className="text-center space-y-4">
+                            <h2 className="text-4xl font-black text-white">
+                                {isLogin ? 'Entrar' : 'Criar Conta'}
+                            </h2>
+                            <p className="text-slate-400 text-lg">
+                                {isLogin
+                                    ? 'Faça login para continuar sua aventura'
+                                    : 'Crie sua conta e comece a explorar'
+                                }
+                            </p>
+                        </div>
 
-                            <FeatureCard
-                                icon={BookOpen}
-                                title="Biblioteca Infinita"
-                                description="🌟 Mergulhe em mais de 15.000 manhwas com atualizações diárias, sistema de IA para recomendações personalizadas e coleções curadas por especialistas."
-                                stat="+50 hoje"
-                                delay={0.2}
+                        {/* Notification */}
+                        {notification && (
+                            <Notification
+                                type={notification.type}
+                                message={notification.message}
+                                onClose={() => setNotification(null)}
                             />
-                            <FeatureCard
-                                icon={Smartphone}
-                                title="Experiência Premium"
-                                description="⚡ Tecnologia de ponta com sincronização em tempo real, modo offline inteligente, player de vídeo integrado e interface otimizada para qualquer dispositivo."
-                                stat="99.9% uptime"
-                                delay={0.4}
+                        )}
+
+                        {/* Enhanced social login */}
+                        <div className="grid grid-cols-3 gap-3">
+                            <SocialButton
+                                provider="Google"
+                                icon={Chrome}
+                                onClick={() => handleSocialLogin('Google')}
+                                disabled={isLoading}
+                                isLoading={socialLoading === 'Google'}
                             />
-                            <FeatureCard
-                                icon={Users}
-                                title="Comunidade Vibrante"
-                                description="🎉 Conecte-se com mais de 1M de leitores apaixonados, participe de eventos exclusivos, torneios de fanart e descubra gems escondidas da comunidade."
-                                stat="1M+ usuários"
-                                delay={0.6}
+                            <SocialButton
+                                provider="GitHub"
+                                icon={Github}
+                                onClick={() => handleSocialLogin('GitHub')}
+                                disabled={isLoading}
+                                isLoading={socialLoading === 'GitHub'}
+                            />
+                            <SocialButton
+                                provider="Facebook"
+                                icon={Facebook}
+                                onClick={() => handleSocialLogin('Facebook')}
+                                disabled={isLoading}
+                                isLoading={socialLoading === 'Facebook'}
                             />
                         </div>
-                    </div>
-                </div>
 
-                {/* Enhanced right side - Auth form */}
-                <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
-                    <Card className="w-full max-w-lg bg-white/10 backdrop-blur-2xl border-white/20 shadow-2xl animate-slideInRight rounded-3xl overflow-hidden">
-                        <CardContent className="p-8 space-y-6">
-                            {/* Mobile header */}
-                            <div className="lg:hidden flex items-center justify-center space-x-3 mb-6">
-                                <LogoIcon className="text-amber-400 h-10 w-10" />
-                                <span className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">
-                                    MANNA
-                                </span>
+                        {/* Enhanced divider */}
+                        <div className="flex items-center space-x-4">
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
+                                <span className="text-sm text-slate-300 font-medium">ou continue com e-mail</span>
                             </div>
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                        </div>
 
-                            {/* Form header */}
-                            <div className="text-center space-y-4">
-                                <h2 className="text-4xl font-black text-white">
-                                    {isLogin ? 'Entrar' : 'Criar Conta'}
-                                </h2>
-                                <p className="text-slate-400 text-lg">
-                                    {isLogin
-                                        ? 'Faça login para continuar sua aventura'
-                                        : 'Crie sua conta e comece a explorar'
-                                    }
-                                </p>
-                            </div>
-
-                            {/* Notification */}
-                            {notification && (
-                                <Notification
-                                    type={notification.type}
-                                    message={notification.message}
-                                    onClose={() => setNotification(null)}
-                                />
-                            )}
-
-                            {/* Enhanced social login */}
-                            <div className="space-y-4">
-                                <SocialButton
-                                    provider="Google"
-                                    icon={Chrome}
-                                    onClick={() => handleSocialLogin('Google')}
-                                    disabled={isLoading}
-                                    isLoading={socialLoading === 'Google'}
-                                />
-                                <SocialButton
-                                    provider="GitHub"
-                                    icon={Github}
-                                    onClick={() => handleSocialLogin('GitHub')}
-                                    disabled={isLoading}
-                                    isLoading={socialLoading === 'GitHub'}
-                                />
-                                <SocialButton
-                                    provider="Facebook"
-                                    icon={Facebook}
-                                    onClick={() => handleSocialLogin('Facebook')}
-                                    disabled={isLoading}
-                                    isLoading={socialLoading === 'Facebook'}
-                                />
-                            </div>
-
-                            {/* Enhanced divider */}
-                            <div className="flex items-center space-x-4">
-                                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                                <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
-                                    <span className="text-sm text-slate-300 font-medium">ou continue com e-mail</span>
-                                </div>
-                                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                            </div>
-
-                            {/* Enhanced form */}
-                            <form onSubmit={handleSubmit} className="space-y-5">
-                                {!isLogin && (
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {/* First Name */}
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">Nome</label>
-                                            <div className="relative">
-                                                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                <Input
-                                                    type="text"
-                                                    placeholder="Seu nome"
-                                                    value={formData.firstName}
-                                                    onChange={(e) => handleInputChange('firstName', e.target.value)}
-                                                    onBlur={() => handleBlur('firstName')}
-                                                    disabled={isLoading}
-                                                    className={`pl-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.firstName && touched.firstName ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
-                                                        }`}
-                                                />
-                                                {touched.firstName && !errors.firstName && formData.firstName && (
-                                                    <CheckCircle2 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-400 h-5 w-5" />
-                                                )}
-                                            </div>
-                                            {errors.firstName && touched.firstName && (
-                                                <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp">
-                                                    <X className="h-3 w-3" />
-                                                    <span>{errors.firstName}</span>
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        {/* Last Name */}
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">Sobrenome</label>
-                                            <div className="relative">
-                                                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                <Input
-                                                    type="text"
-                                                    placeholder="Seu sobrenome"
-                                                    value={formData.lastName}
-                                                    onChange={(e) => handleInputChange('lastName', e.target.value)}
-                                                    onBlur={() => handleBlur('lastName')}
-                                                    disabled={isLoading}
-                                                    className={`pl-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.lastName && touched.lastName ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
-                                                        }`}
-                                                />
-                                                {touched.lastName && !errors.lastName && formData.lastName && (
-                                                    <CheckCircle2 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-400 h-5 w-5" />
-                                                )}
-                                            </div>
-                                            {errors.lastName && touched.lastName && (
-                                                <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp">
-                                                    <X className="h-3 w-3" />
-                                                    <span>{errors.lastName}</span>
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {!isLogin && (
+                        {/* Enhanced form */}
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            {!isLogin && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* First Name */}
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-slate-300">Nome de usuário</label>
+                                        <label className="text-sm font-medium text-slate-300">Nome</label>
                                         <div className="relative">
                                             <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                             <Input
                                                 type="text"
-                                                placeholder="Como você quer ser conhecido"
-                                                value={formData.username}
-                                                onChange={(e) => handleInputChange('username', e.target.value.toLowerCase())}
-                                                onBlur={() => handleBlur('username')}
+                                                placeholder="Seu nome"
+                                                value={formData.firstName}
+                                                onChange={(e) => handleInputChange('firstName', e.target.value)}
+                                                onBlur={() => handleBlur('firstName')}
                                                 disabled={isLoading}
-                                                className={`pl-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.username && touched.username ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
+                                                className={`pl-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.firstName && touched.firstName ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
                                                     }`}
                                             />
-                                            {touched.username && !errors.username && formData.username && (
+                                            {touched.firstName && !errors.firstName && formData.firstName && (
                                                 <CheckCircle2 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-400 h-5 w-5" />
                                             )}
                                         </div>
-                                        {errors.username && touched.username && (
+                                        {errors.firstName && touched.firstName && (
                                             <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp">
                                                 <X className="h-3 w-3" />
-                                                <span>{errors.username}</span>
+                                                <span>{errors.firstName}</span>
                                             </p>
                                         )}
                                     </div>
-                                )}
 
-                                {/* Email */}
+                                    {/* Last Name */}
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-slate-300">Sobrenome</label>
+                                        <div className="relative">
+                                            <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                            <Input
+                                                type="text"
+                                                placeholder="Seu sobrenome"
+                                                value={formData.lastName}
+                                                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                                                onBlur={() => handleBlur('lastName')}
+                                                disabled={isLoading}
+                                                className={`pl-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.lastName && touched.lastName ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
+                                                    }`}
+                                            />
+                                            {touched.lastName && !errors.lastName && formData.lastName && (
+                                                <CheckCircle2 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-400 h-5 w-5" />
+                                            )}
+                                        </div>
+                                        {errors.lastName && touched.lastName && (
+                                            <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp">
+                                                <X className="h-3 w-3" />
+                                                <span>{errors.lastName}</span>
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {!isLogin && (
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-300">E-mail</label>
+                                    <label className="text-sm font-medium text-slate-300">Nome de usuário</label>
                                     <div className="relative">
-                                        <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                        <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                         <Input
-                                            type="email"
-                                            placeholder="seu@email.com"
-                                            value={formData.email}
-                                            onChange={(e) => handleInputChange('email', e.target.value)}
-                                            onBlur={() => handleBlur('email')}
+                                            type="text"
+                                            placeholder="Como você quer ser conhecido"
+                                            value={formData.username}
+                                            onChange={(e) => handleInputChange('username', e.target.value.toLowerCase())}
+                                            onBlur={() => handleBlur('username')}
                                             disabled={isLoading}
-                                            className={`pl-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.email && touched.email ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
+                                            className={`pl-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.username && touched.username ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
                                                 }`}
                                         />
-                                        {touched.email && !errors.email && formData.email && validateEmail(formData.email) && (
+                                        {touched.username && !errors.username && formData.username && (
                                             <CheckCircle2 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-400 h-5 w-5" />
                                         )}
                                     </div>
-                                    {errors.email && touched.email && (
+                                    {errors.username && touched.username && (
                                         <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp">
                                             <X className="h-3 w-3" />
-                                            <span>{errors.email}</span>
+                                            <span>{errors.username}</span>
                                         </p>
                                     )}
                                 </div>
+                            )}
 
-                                {/* Password */}
+                            {/* Email */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-300">E-mail</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                    <Input
+                                        type="email"
+                                        placeholder="seu@email.com"
+                                        value={formData.email}
+                                        onChange={(e) => handleInputChange('email', e.target.value)}
+                                        onBlur={() => handleBlur('email')}
+                                        disabled={isLoading}
+                                        className={`pl-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.email && touched.email ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
+                                            }`}
+                                    />
+                                    {touched.email && !errors.email && formData.email && validateEmail(formData.email) && (
+                                        <CheckCircle2 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-400 h-5 w-5" />
+                                    )}
+                                </div>
+                                {errors.email && touched.email && (
+                                    <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp">
+                                        <X className="h-3 w-3" />
+                                        <span>{errors.email}</span>
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Password */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-300">Senha</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                    <Input
+                                        type={showPassword ? 'text' : 'password'}
+                                        placeholder={isLogin ? "Sua senha" : "Crie uma senha segura"}
+                                        value={formData.password}
+                                        onChange={(e) => handleInputChange('password', e.target.value)}
+                                        onBlur={() => handleBlur('password')}
+                                        disabled={isLoading}
+                                        className={`pl-12 pr-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.password && touched.password ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
+                                            }`}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        disabled={isLoading}
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white p-0 h-auto transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </Button>
+                                </div>
+                                {errors.password && touched.password && (
+                                    <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp">
+                                        <X className="h-3 w-3" />
+                                        <span>{errors.password}</span>
+                                    </p>
+                                )}
+                                {!isLogin && formData.password && (
+                                    <PasswordStrength password={formData.password} />
+                                )}
+                            </div>
+
+                            {!isLogin && (
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-300">Senha</label>
+                                    <label className="text-sm font-medium text-slate-300">Confirmar senha</label>
                                     <div className="relative">
                                         <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                         <Input
-                                            type={showPassword ? 'text' : 'password'}
-                                            placeholder={isLogin ? "Sua senha" : "Crie uma senha segura"}
-                                            value={formData.password}
-                                            onChange={(e) => handleInputChange('password', e.target.value)}
-                                            onBlur={() => handleBlur('password')}
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            placeholder="Digite a senha novamente"
+                                            value={formData.confirmPassword}
+                                            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                                            onBlur={() => handleBlur('confirmPassword')}
                                             disabled={isLoading}
-                                            className={`pl-12 pr-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.password && touched.password ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
+                                            className={`pl-12 pr-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.confirmPassword && touched.confirmPassword ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
                                                 }`}
                                         />
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             size="sm"
-                                            onClick={() => setShowPassword(!showPassword)}
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                             disabled={isLoading}
                                             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white p-0 h-auto transition-colors"
                                         >
-                                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                            {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                         </Button>
+                                        {touched.confirmPassword && !errors.confirmPassword && formData.confirmPassword && formData.password === formData.confirmPassword && (
+                                            <CheckCircle2 className="absolute right-12 top-1/2 transform -translate-y-1/2 text-green-400 h-5 w-5" />
+                                        )}
                                     </div>
-                                    {errors.password && touched.password && (
+                                    {errors.confirmPassword && touched.confirmPassword && (
                                         <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp">
                                             <X className="h-3 w-3" />
-                                            <span>{errors.password}</span>
+                                            <span>{errors.confirmPassword}</span>
                                         </p>
                                     )}
-                                    {!isLogin && formData.password && (
-                                        <PasswordStrength password={formData.password} />
+                                </div>
+                            )}
+
+                            {/* Terms & Conditions */}
+                            {!isLogin && (
+                                <div className="space-y-3">
+                                    <label className="flex items-start space-x-4 cursor-pointer group p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.agreeToTerms}
+                                            onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
+                                            disabled={isLoading}
+                                            className="mt-1 w-5 h-5 rounded border-white/20 bg-white/5 text-amber-400 focus:ring-amber-400 focus:ring-2"
+                                        />
+                                        <div className="space-y-2">
+                                            <span className="text-sm text-slate-300 leading-relaxed group-hover:text-slate-200 transition-colors">
+                                                Eu li e aceito os{' '}
+                                                <button type="button" className="text-amber-400 hover:text-amber-300 underline font-medium">
+                                                    Termos de Uso
+                                                </button>{' '}
+                                                e{' '}
+                                                <button type="button" className="text-amber-400 hover:text-amber-300 underline font-medium">
+                                                    Política de Privacidade
+                                                </button>
+                                            </span>
+                                            <div className="flex items-center space-x-2 text-xs text-slate-400">
+                                                <Shield className="h-3 w-3" />
+                                                <span>Seus dados estão protegidos e seguros</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    {errors.agreeToTerms && (
+                                        <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp ml-4">
+                                            <X className="h-3 w-3" />
+                                            <span>{errors.agreeToTerms}</span>
+                                        </p>
                                     )}
                                 </div>
+                            )}
 
-                                {!isLogin && (
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-slate-300">Confirmar senha</label>
-                                        <div className="relative">
-                                            <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                            <Input
-                                                type={showConfirmPassword ? 'text' : 'password'}
-                                                placeholder="Digite a senha novamente"
-                                                value={formData.confirmPassword}
-                                                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                                                onBlur={() => handleBlur('confirmPassword')}
-                                                disabled={isLoading}
-                                                className={`pl-12 pr-12 bg-white/5 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/10 rounded-xl py-4 transition-all duration-300 ${errors.confirmPassword && touched.confirmPassword ? 'border-red-400 focus:border-red-400' : 'focus:border-amber-400'
-                                                    }`}
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                disabled={isLoading}
-                                                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white p-0 h-auto transition-colors"
-                                            >
-                                                {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                                            </Button>
-                                            {touched.confirmPassword && !errors.confirmPassword && formData.confirmPassword && formData.password === formData.confirmPassword && (
-                                                <CheckCircle2 className="absolute right-12 top-1/2 transform -translate-y-1/2 text-green-400 h-5 w-5" />
-                                            )}
-                                        </div>
-                                        {errors.confirmPassword && touched.confirmPassword && (
-                                            <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp">
-                                                <X className="h-3 w-3" />
-                                                <span>{errors.confirmPassword}</span>
-                                            </p>
-                                        )}
+                            {/* Forgot Password */}
+                            {isLogin && (
+                                <div className="text-right">
+                                    <button
+                                        type="button"
+                                        className="text-sm text-amber-400 hover:text-amber-300 transition-colors font-medium underline"
+                                        disabled={isLoading}
+                                    >
+                                        Esqueceu sua senha?
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Enhanced submit button */}
+                            <Button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold py-5 rounded-xl text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                {isLoading ? (
+                                    <div className="flex items-center justify-center space-x-3 relative z-10">
+                                        <Loader2 className="w-6 h-6 animate-spin" />
+                                        <span>{isLogin ? 'Fazendo login...' : 'Criando sua conta...'}</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center space-x-3 relative z-10">
+                                        <span>{isLogin ? 'Entrar na MANNA' : 'Criar minha conta'}</span>
+                                        <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 )}
+                            </Button>
+                        </form>
 
-                                {/* Terms & Conditions */}
-                                {!isLogin && (
-                                    <div className="space-y-3">
-                                        <label className="flex items-start space-x-4 cursor-pointer group p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.agreeToTerms}
-                                                onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
-                                                disabled={isLoading}
-                                                className="mt-1 w-5 h-5 rounded border-white/20 bg-white/5 text-amber-400 focus:ring-amber-400 focus:ring-2"
-                                            />
-                                            <div className="space-y-2">
-                                                <span className="text-sm text-slate-300 leading-relaxed group-hover:text-slate-200 transition-colors">
-                                                    Eu li e aceito os{' '}
-                                                    <button type="button" className="text-amber-400 hover:text-amber-300 underline font-medium">
-                                                        Termos de Uso
-                                                    </button>{' '}
-                                                    e{' '}
-                                                    <button type="button" className="text-amber-400 hover:text-amber-300 underline font-medium">
-                                                        Política de Privacidade
-                                                    </button>
-                                                </span>
-                                                <div className="flex items-center space-x-2 text-xs text-slate-400">
-                                                    <Shield className="h-3 w-3" />
-                                                    <span>Seus dados estão protegidos e seguros</span>
-                                                </div>
-                                            </div>
-                                        </label>
-                                        {errors.agreeToTerms && (
-                                            <p className="text-red-400 text-xs flex items-center space-x-1 animate-slideInUp ml-4">
-                                                <X className="h-3 w-3" />
-                                                <span>{errors.agreeToTerms}</span>
-                                            </p>
-                                        )}
-                                    </div>
+                        {/* Enhanced mode switcher */}
+                        <div className="text-center">
+                            <button
+                                type="button"
+                                onClick={switchMode}
+                                disabled={isLoading}
+                                className="text-slate-400 hover:text-white transition-all duration-300 flex items-center justify-center space-x-2 mx-auto group disabled:opacity-50 p-3 rounded-xl hover:bg-white/5"
+                            >
+                                {isLogin ? (
+                                    <>
+                                        <span>Novo na MANNA?</span>
+                                        <span className="text-amber-400 font-bold group-hover:text-amber-300">
+                                            Criar conta gratuita
+                                        </span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                                        <span>Já tem uma conta?</span>
+                                        <span className="text-amber-400 font-bold group-hover:text-amber-300">
+                                            Fazer login
+                                        </span>
+                                    </>
                                 )}
+                            </button>
+                        </div>
 
-                                {/* Forgot Password */}
-                                {isLogin && (
-                                    <div className="text-right">
-                                        <button
-                                            type="button"
-                                            className="text-sm text-amber-400 hover:text-amber-300 transition-colors font-medium underline"
-                                            disabled={isLoading}
-                                        >
-                                            Esqueceu sua senha?
-                                        </button>
-                                    </div>
-                                )}
+                        {/* Enhanced navigation */}
+                        <div className="text-center pt-6 border-t border-white/10">
+                            <button
+                                type="button"
+                                onClick={() => onNavigate?.('home')}
+                                disabled={isLoading}
+                                className="text-sm text-slate-400 hover:text-amber-400 transition-all duration-300 flex items-center justify-center space-x-2 mx-auto group disabled:opacity-50 p-2 rounded-lg hover:bg-white/5"
+                            >
+                                <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                                <span>Explorar sem cadastro</span>
+                            </button>
+                        </div>
 
-                                {/* Enhanced submit button */}
-                                <Button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold py-5 rounded-xl text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    {isLoading ? (
-                                        <div className="flex items-center justify-center space-x-3 relative z-10">
-                                            <Loader2 className="w-6 h-6 animate-spin" />
-                                            <span>{isLogin ? 'Fazendo login...' : 'Criando sua conta...'}</span>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center justify-center space-x-3 relative z-10">
-                                            <span>{isLogin ? 'Entrar na MANNA' : 'Criar minha conta'}</span>
-                                            <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
-                                        </div>
-                                    )}
-                                </Button>
-                            </form>
-
-                            {/* Enhanced mode switcher */}
-                            <div className="text-center">
-                                <button
-                                    type="button"
-                                    onClick={switchMode}
-                                    disabled={isLoading}
-                                    className="text-slate-400 hover:text-white transition-all duration-300 flex items-center justify-center space-x-2 mx-auto group disabled:opacity-50 p-3 rounded-xl hover:bg-white/5"
-                                >
-                                    {isLogin ? (
-                                        <>
-                                            <span>Novo na MANNA?</span>
-                                            <span className="text-amber-400 font-bold group-hover:text-amber-300">
-                                                Criar conta gratuita
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                                            <span>Já tem uma conta?</span>
-                                            <span className="text-amber-400 font-bold group-hover:text-amber-300">
-                                                Fazer login
-                                            </span>
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-
-                            {/* Enhanced navigation */}
-                            <div className="text-center pt-6 border-t border-white/10">
-                                <button
-                                    type="button"
-                                    onClick={() => onNavigate?.('home')}
-                                    disabled={isLoading}
-                                    className="text-sm text-slate-400 hover:text-amber-400 transition-all duration-300 flex items-center justify-center space-x-2 mx-auto group disabled:opacity-50 p-2 rounded-lg hover:bg-white/5"
-                                >
-                                    <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                                    <span>Explorar sem cadastro</span>
-                                </button>
-                            </div>
-
-                            {/* Security badge */}
-                            <div className="flex items-center justify-center space-x-2 text-xs text-slate-500 pt-4">
-                                <Shield className="h-4 w-4" />
-                                <span>Protegido por criptografia SSL</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                        {/* Security badge */}
+                        <div className="flex items-center justify-center space-x-2 text-xs text-slate-500 pt-4">
+                            <Shield className="h-4 w-4" />
+                            <span>Protegido por criptografia SSL</span>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Enhanced floating elements with animation */}
