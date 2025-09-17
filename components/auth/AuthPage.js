@@ -32,35 +32,6 @@ import {
     Award
 } from 'lucide-react';
 
-// Enhanced background images with fallbacks
-const backgroundImages = [
-    {
-        src: "/images/manhwas/solo-leveling.jpg",
-        fallback: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=1200&fit=crop",
-        title: "Solo Leveling"
-    },
-    {
-        src: "/images/manhwas/tower-of-god.jpg",
-        fallback: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&h=1200&fit=crop",
-        title: "Tower of God"
-    },
-    {
-        src: "/images/manhwas/noblesse.jpg",
-        fallback: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=1200&fit=crop",
-        title: "Noblesse"
-    },
-    {
-        src: "/images/manhwas/the-god-of-high-school.jpg",
-        fallback: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1200&fit=crop",
-        title: "The God of High School"
-    },
-    {
-        src: "/images/manhwas/windbreaker.jpg",
-        fallback: "https://images.unsplash.com/photo-1494790108755-2616c90fc7fe?w=800&h=1200&fit=crop",
-        title: "Wind Breaker"
-    }
-];
-
 // Enhanced form validation
 const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -268,7 +239,6 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [socialLoading, setSocialLoading] = useState(null);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [notification, setNotification] = useState(null);
 
     // Enhanced form state
@@ -285,23 +255,19 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
 
-    // Auto-rotate background images with enhanced preloading
+    // Preload login and register images
     useEffect(() => {
-        // Preload both main and fallback images
-        backgroundImages.forEach(img => {
-            // Preload main image
-            const mainImage = new Image();
-            mainImage.src = img.src;
+        // Preload both login and register images
+        const loginImage = new Image();
+        loginImage.src = "/images/login.jpg";
 
-            // Preload fallback image
-            const fallbackImage = new Image();
-            fallbackImage.src = img.fallback;
-        });
+        const registerImage = new Image();
+        registerImage.src = "/images/register.jpg";
 
-        const interval = setInterval(() => {
-            setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
-        }, 6000); // Increased to 6 seconds for better viewing experience
-        return () => clearInterval(interval);
+        // Preload fallback image
+        const fallbackImage = new Image();
+        fallbackImage.src = "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=1200&fit=crop";
+
     }, []);
 
     // Enhanced input change handler
@@ -490,8 +456,6 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
         resetForm();
     }, [isLogin, resetForm]);
 
-    const currentImage = useMemo(() => backgroundImages[currentImageIndex], [currentImageIndex]);
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
             {/* Enhanced animated background */}
@@ -502,44 +466,27 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                 <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-green-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '6s' }}></div>
             </div>
 
-            {/* Enhanced background carousel with smooth crossfade */}
+            {/* Background image based on login/register state */}
             <div className="absolute inset-0 z-1 overflow-hidden">
-                {backgroundImages.map((image, index) => (
-                    <div
-                        key={index}
-                        className={`absolute inset-0 transition-opacity duration-[3000ms] ease-in-out ${index === currentImageIndex ? 'opacity-20' : 'opacity-0'
-                            }`}
-                        style={{
-                            // Preload next image to prevent flash
-                            willChange: 'opacity',
-                            transform: 'translateZ(0)', // Force GPU acceleration
+                <div className="absolute inset-0 transition-opacity duration-1000 ease-in-out opacity-20">
+                    <img
+                        src={isLogin ? "/images/login.jpg" : "/images/register.jpg"}
+                        alt={isLogin ? "Login Background" : "Register Background"}
+                        className="w-full h-full object-cover scale-105 transition-all duration-1000 ease-out"
+                        onError={(e) => {
+                            e.target.src = "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=1200&fit=crop";
                         }}
-                    >
-                        <img
-                            src={image.src}
-                            alt={image.title}
-                            className="w-full h-full object-cover scale-110 transition-transform duration-[3000ms] ease-out"
-                            style={{
-                                // Smooth scale animation
-                                transform: index === currentImageIndex ? 'scale(1.05)' : 'scale(1.1)',
-                                willChange: 'transform',
-                            }}
-                            onError={(e) => {
-                                e.target.src = image.fallback;
-                            }}
-                            loading="eager" // Preload images to prevent flash
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-purple-900/85 to-slate-900/90"></div>
+                        loading="eager"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-purple-900/85 to-slate-900/90"></div>
 
-                        {/* Image title overlay with fade animation */}
-                        <div className={`absolute bottom-8 left-8 transition-opacity duration-1000 ${index === currentImageIndex ? 'opacity-60' : 'opacity-0'
-                            }`}>
-                            <p className="text-white/60 text-sm font-medium backdrop-blur-sm bg-black/20 px-3 py-1 rounded-full">
-                                {image.title}
-                            </p>
-                        </div>
+                    {/* Image title overlay */}
+                    <div className="absolute bottom-8 left-8 opacity-60">
+                        <p className="text-white/60 text-sm font-medium backdrop-blur-sm bg-black/20 px-3 py-1 rounded-full">
+                            {isLogin ? "Login" : "Criar Conta"}
+                        </p>
                     </div>
-                ))}
+                </div>
             </div>
 
             {/* Floating particles */}
