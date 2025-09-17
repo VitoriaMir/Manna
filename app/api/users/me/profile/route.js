@@ -1,137 +1,9 @@
 // API Route para perfil do usuário
 import jwt from 'jsonwebtoken';
 import { getUserFromRequest } from '@/lib/auth-utils';
-
-// Simulação de banco de dados em memória (substitua por DB real)
-const userProfiles = new Map();
-const userActivities = new Map();
-const userAchievements = new Map();
-
-// Dados iniciais mockados por usuário
-function initializeUserData(userId, user) {
-    if (!userProfiles.has(userId)) {
-        userProfiles.set(userId, {
-            userId,
-            readCount: Math.floor(Math.random() * 50) + 1,
-            favoritesCount: Math.floor(Math.random() * 20) + 1,
-            inProgressCount: Math.floor(Math.random() * 10) + 1,
-            readingStreakDays: Math.floor(Math.random() * 30) + 1,
-            monthlyGoal: 20,
-            monthlyRead: Math.floor(Math.random() * 20),
-            joinedDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-            preferences: {
-                theme: 'dark',
-                notifications: true,
-                privacy: 'public'
-            }
-        });
-    }
-
-    if (!userActivities.has(userId)) {
-        userActivities.set(userId, [
-            {
-                id: `${userId}_activity_1`,
-                type: 'read',
-                title: 'Leu "Solo Leveling" - Capítulo 25',
-                manhwaTitle: 'Solo Leveling',
-                chapter: 25,
-                whenISO: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-                meta: 'Ação, Fantasia'
-            },
-            {
-                id: `${userId}_activity_2`,
-                type: 'favorite',
-                title: 'Adicionou "Tower of God" aos favoritos',
-                manhwaTitle: 'Tower of God',
-                whenISO: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-                meta: 'Aventura, Mistério'
-            },
-            {
-                id: `${userId}_activity_3`,
-                type: 'start',
-                title: 'Começou a ler "The Beginning After The End"',
-                manhwaTitle: 'The Beginning After The End',
-                whenISO: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-                meta: 'Fantasia, Reencarnação'
-            },
-            {
-                id: `${userId}_activity_4`,
-                type: 'review',
-                title: 'Avaliou "Noblesse" com 5 estrelas',
-                manhwaTitle: 'Noblesse',
-                rating: 5,
-                whenISO: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-                meta: 'Sobrenatural, Comédia'
-            },
-            {
-                id: `${userId}_activity_5`,
-                type: 'finish',
-                title: 'Terminou de ler "God of High School"',
-                manhwaTitle: 'God of High School',
-                whenISO: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
-                meta: 'Ação, Artes Marciais'
-            }
-        ]);
-    }
-
-    if (!userAchievements.has(userId)) {
-        const profile = userProfiles.get(userId);
-        const achievements = [];
-
-        // Conquistas baseadas nas estatísticas do usuário
-        if (profile.readCount >= 1) {
-            achievements.push({
-                id: 'first_read',
-                label: 'Primeiro Manhwa',
-                description: 'Leu seu primeiro manhwa',
-                unlockedAt: profile.joinedDate,
-                icon: '📚'
-            });
-        }
-
-        if (profile.readCount >= 10) {
-            achievements.push({
-                id: 'reader_10',
-                label: 'Leitor Dedicado',
-                description: 'Leu 10 manhwas',
-                unlockedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-                icon: '📖'
-            });
-        }
-
-        if (profile.readingStreakDays >= 7) {
-            achievements.push({
-                id: 'streak_7',
-                label: 'Constância',
-                description: 'Leu por 7 dias seguidos',
-                unlockedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-                icon: '🔥'
-            });
-        }
-
-        if (profile.favoritesCount >= 5) {
-            achievements.push({
-                id: 'collector',
-                label: 'Colecionador',
-                description: 'Favoritou 5+ manhwas',
-                unlockedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-                icon: '⭐'
-            });
-        }
-
-        if (profile.readCount >= 25) {
-            achievements.push({
-                id: 'veteran',
-                label: 'Veterano',
-                description: 'Leu 25+ manhwas',
-                unlockedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-                icon: '🏆'
-            });
-        }
-
-        userAchievements.set(userId, achievements);
-    }
-}
+import { userProfiles, userActivities, userAchievements, initializeUserData } from '@/lib/user-data-store';
+import { readdir } from 'fs/promises';
+import path from 'path';
 
 export async function GET(request) {
     try {
@@ -141,7 +13,10 @@ export async function GET(request) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const userId = user.id;
+        console.log('Profile API - Full user object:', JSON.stringify(user, null, 2));
+
+        const userId = user.sub || user.id || user.email || 'anonymous';
+        console.log('Profile API - User ID used:', userId);
 
         // Inicializar dados do usuário se não existir
         initializeUserData(userId, user);
@@ -150,6 +25,38 @@ export async function GET(request) {
         const activities = userActivities.get(userId);
         const achievements = userAchievements.get(userId);
 
+        console.log('Profile API - User ID:', userId);
+        console.log('Profile API - Profile data:', profile);
+        console.log('Profile API - Avatar URL from profile:', profile?.avatarUrl);
+
+        // Verificar se existe avatar no sistema de arquivos se não houver no perfil
+        let avatarUrl = profile?.avatarUrl || user.picture;
+
+        if (!avatarUrl || avatarUrl === user.picture) {
+            try {
+                const avatarsDir = path.join(process.cwd(), 'public', 'uploads', 'avatars');
+                const files = await readdir(avatarsDir);
+                const safeUserId = String(userId).replace(/[|@]/g, '_');
+                const userAvatarFiles = files.filter(file => file.startsWith(safeUserId));
+
+                if (userAvatarFiles.length > 0) {
+                    // Usar o arquivo mais recente
+                    const latestFile = userAvatarFiles.sort().pop();
+                    avatarUrl = `/uploads/avatars/${latestFile}`;
+
+                    // Atualizar o perfil com a URL encontrada
+                    const updatedProfile = { ...profile, avatarUrl };
+                    userProfiles.set(userId, updatedProfile);
+
+                    console.log('Profile API - Restored avatar from filesystem:', avatarUrl);
+                }
+            } catch (error) {
+                console.log('Profile API - Error checking avatar files:', error.message);
+            }
+        }
+
+        console.log('Profile API - Final avatar URL:', avatarUrl);
+
         // Calcular estatísticas dinâmicas
         const monthlyGoalPercent = Math.round((profile.monthlyRead / profile.monthlyGoal) * 100);
 
@@ -157,7 +64,8 @@ export async function GET(request) {
         const profileData = {
             name: user.name || user.email?.split('@')[0] || 'Usuário',
             email: user.email,
-            avatarUrl: user.picture,
+            avatarUrl: avatarUrl, // Usar a URL determinada acima
+            backgroundImage: profile.backgroundImage, // Imagem de fundo (null se não definida)
             lastLoginISO: user.updated_at || new Date().toISOString(),
             joinedDate: profile.joinedDate,
             roles: user['https://manna-app.com/roles'] || ['reader'],
@@ -198,7 +106,7 @@ export async function PUT(request) {
         const updates = await request.json();
 
         // Validar dados de entrada
-        const allowedUpdates = ['monthlyGoal', 'preferences'];
+        const allowedUpdates = ['monthlyGoal', 'preferences', 'backgroundImage'];
         const filteredUpdates = {};
 
         for (const [key, value] of Object.entries(updates)) {

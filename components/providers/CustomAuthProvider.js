@@ -27,9 +27,14 @@ export function CustomAuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Check if user is authenticated on component mount
+    // Check if user is authenticated on component mount and set up periodic checks
     useEffect(() => {
         checkAuthStatus();
+
+        // Check auth status every 5 minutes to refresh session
+        const interval = setInterval(checkAuthStatus, 5 * 60 * 1000);
+
+        return () => clearInterval(interval);
     }, []);
 
     const checkAuthStatus = async () => {
@@ -40,7 +45,7 @@ export function CustomAuthProvider({ children }) {
                 return;
             }
 
-            // Verify token with backend
+            // Try to verify token with backend
             const response = await fetch('/api/auth/verify', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -51,12 +56,32 @@ export function CustomAuthProvider({ children }) {
                 const userData = await response.json();
                 setUser(userData.user);
             } else {
-                // Token is invalid, remove it
-                localStorage.removeItem('manna_auth_token');
+                // Se a verificação falhar, vamos tentar decodificar o token JWT localmente
+                // para manter o usuário logado se o token ainda for válido
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const now = Date.now() / 1000;
+
+                    // Se o token não expirou, manter o usuário logado
+                    if (payload.exp && payload.exp > now) {
+                        setUser({
+                            id: payload.userId || payload.sub,
+                            email: payload.email,
+                            name: payload.name || payload.email?.split('@')[0]
+                        });
+                    } else {
+                        // Token expirado, remover
+                        localStorage.removeItem('manna_auth_token');
+                    }
+                } catch (decodeError) {
+                    // Token malformado, remover
+                    localStorage.removeItem('manna_auth_token');
+                }
             }
         } catch (error) {
             console.error('Auth check failed:', error);
-            localStorage.removeItem('manna_auth_token');
+            // Em caso de erro de rede, não deslogar o usuário
+            // Apenas continuar com o estado atual
         } finally {
             setIsLoading(false);
         }
@@ -147,6 +172,11 @@ export function CustomAuthProvider({ children }) {
 export const useUser = () => {
     const { user, isLoading } = useAuth();
 
+    // Função para obter token de acesso
+    const getAccessToken = () => {
+        return Promise.resolve(localStorage.getItem('manna_auth_token'));
+    };
+
     return {
         user: user ? {
             ...user,
@@ -157,6 +187,7 @@ export const useUser = () => {
             'https://manna-app.com/roles': user.roles || ['reader']
         } : null,
         error: null,
-        isLoading
+        isLoading,
+        getAccessToken
     };
 };

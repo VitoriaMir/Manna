@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Upload, 
-  X, 
-  Image as ImageIcon, 
-  CheckCircle, 
+import {
+  Upload,
+  X,
+  Image as ImageIcon,
+  CheckCircle,
   AlertCircle,
   Eye,
   Trash2
@@ -68,7 +68,11 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
         body: formData,
       })
 
+      console.log('Upload response status:', response.status)
+      console.log('Upload response headers:', [...response.headers.entries()])
+
       const result = await response.json()
+      console.log('Upload result:', result)
 
       if (result.success) {
         // Update files with results
@@ -115,10 +119,9 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
   return (
     <div className="space-y-4">
       {/* Upload Area */}
-      <Card className={`border-2 border-dashed transition-colors ${
-        isDragActive ? 'border-purple-500 bg-purple-50 dark:bg-purple-950' : 
-        'border-gray-300 hover:border-purple-400'
-      }`}>
+      <Card className={`border-2 border-dashed transition-colors ${isDragActive ? 'border-purple-500 bg-purple-50 dark:bg-purple-950' :
+          'border-gray-300 hover:border-purple-400'
+        }`}>
         <CardContent className="p-6">
           <div {...getRootProps()} className="cursor-pointer text-center">
             <input {...getInputProps()} />
@@ -126,7 +129,7 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
               <div className="mx-auto w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                 <Upload className="h-8 w-8 text-gray-600" />
               </div>
-              
+
               <div>
                 <p className="text-lg font-medium">
                   {isDragActive ? 'Solte os arquivos aqui' : 'Arraste arquivos ou clique para selecionar'}
@@ -138,7 +141,7 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
                   Máximo de {maxFiles} arquivos • {files.length}/{maxFiles} selecionados
                 </p>
               </div>
-              
+
               <Button variant="outline" disabled={uploading}>
                 <ImageIcon className="h-4 w-4 mr-2" />
                 Selecionar Imagens
@@ -156,9 +159,9 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
               <div className="flex items-center justify-between">
                 <h3 className="font-medium">Arquivos Selecionados</h3>
                 <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    onClick={uploadFiles} 
+                  <Button
+                    size="sm"
+                    onClick={uploadFiles}
                     disabled={uploading || files.every(f => f.status === 'success')}
                   >
                     {uploading ? 'Enviando...' : 'Enviar Arquivos'}
@@ -181,8 +184,8 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
                   <div key={fileItem.id} className="flex items-center gap-3 p-3 border rounded-lg">
                     {/* Preview */}
                     <div className="relative w-16 h-16 rounded overflow-hidden bg-gray-100">
-                      <img 
-                        src={fileItem.preview} 
+                      <img
+                        src={fileItem.preview}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -194,7 +197,7 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
                       <p className="text-sm text-muted-foreground">
                         {(fileItem.file.size / 1024 / 1024).toFixed(2)} MB
                       </p>
-                      
+
                       {fileItem.error && (
                         <p className="text-sm text-red-600">{fileItem.error}</p>
                       )}
@@ -220,10 +223,10 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
                           <Badge variant="destructive">Erro</Badge>
                         </>
                       )}
-                      
+
                       {fileItem.status !== 'uploading' && (
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={() => removeFile(fileItem.id)}
                         >

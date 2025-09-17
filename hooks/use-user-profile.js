@@ -6,9 +6,11 @@ import { useUser } from '@/components/providers/CustomAuthProvider';
 // Cache global para evitar múltiplas chamadas
 let profileCache = null;
 let isCurrentlyFetching = false;
+let cacheTimestamp = null;
+const CACHE_DURATION = 30 * 1000; // 30 segundos
 
 export function useUserProfile() {
-    const { user, isLoading: userLoading } = useUser();
+    const { user, isLoading: userLoading, getAccessToken } = useUser();
     const [profileData, setProfileData] = useState(profileCache);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -16,57 +18,66 @@ export function useUserProfile() {
     const hasFetchedRef = useRef(false);
 
     // Função para buscar dados do perfil
-    const fetchProfile = useCallback(async () => {
-        if (!user || userLoading || isCurrentlyFetching || hasFetchedRef.current) {
+    const fetchProfile = useCallback(async (force = false) => {
+        console.log('fetchProfile called with force:', force);
+
+        if (!user || !getAccessToken) {
+            console.log('No user or getAccessToken, skipping fetch');
             return;
         }
 
-        if (profileCache) {
+        // Evitar múltiplas chamadas simultâneas
+        if (isCurrentlyFetching && !force) {
+            console.log('Already fetching, skipping...');
+            return;
+        }
+
+        // Verificar cache apenas se não for force
+        if (!force && profileCache) {
+            console.log('Using cached data');
             setProfileData(profileCache);
             setIsLoading(false);
             return;
         }
 
-        try {
-            isCurrentlyFetching = true;
-            hasFetchedRef.current = true;
-            setIsLoading(true);
-            setError(null);
+        isCurrentlyFetching = true;
 
-            const token = localStorage.getItem('manna_auth_token');
-            if (!token || token === 'null' || token === 'undefined') {
-                console.log('No valid token available for profile request');
+        try {
+            setIsLoading(true);
+            const token = await getAccessToken();
+
+            if (!token) {
+                console.log('No token available');
                 setIsLoading(false);
+                isCurrentlyFetching = false;
                 return;
             }
 
             const response = await fetch('/api/users/me/profile', {
-                method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
-                },
+                    'Cache-Control': force ? 'no-cache' : 'default'
+                }
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Profile data fetched successfully:', data);
 
-            const data = await response.json();
-            profileCache = data;
-            setProfileData(data);
-        } catch (err) {
-            console.error('Error fetching profile:', err);
-            setError(err.message);
+                // Atualizar cache e estado
+                profileCache = data;
+                setProfileData(data);
+                hasFetchedRef.current = true;
+            }
+        } catch (error) {
+            console.error('Error fetching profile:', error);
         } finally {
             setIsLoading(false);
             isCurrentlyFetching = false;
         }
-    }, [user, userLoading]);
-
-    // Buscar dados quando necessário
+    }, [user, getAccessToken]);    // Buscar dados quando necessário
     useEffect(() => {
-        if (!userLoading && user && !profileCache && !hasFetchedRef.current) {
+        if (!userLoading && user && !hasFetchedRef.current) {
             fetchProfile();
         } else if (!userLoading && !user) {
             profileCache = null;
@@ -153,13 +164,35 @@ export function useUserProfile() {
     // Função para revalidar dados
     const revalidate = useCallback(() => {
         if (user) {
+            console.log('Force revalidating profile data...');
             profileCache = null;
             hasFetchedRef.current = false;
             isCurrentlyFetching = false;
             setIsLoading(true);
-            fetchProfile();
+            fetchProfile(true); // Força refresh
         }
     }, [user, fetchProfile]);
+
+    // Escutar apenas evento de atualização de avatar (sem focus)
+    useEffect(() => {
+        const handleAvatarUpdate = () => {
+            console.log('Avatar update event received, revalidating...');
+            // Usar setTimeout para evitar loops
+            setTimeout(() => {
+                profileCache = null;
+                hasFetchedRef.current = false;
+                isCurrentlyFetching = false;
+                setIsLoading(true);
+                fetchProfile(true);
+            }, 100);
+        };
+
+        window.addEventListener('avatar-updated', handleAvatarUpdate);
+
+        return () => {
+            window.removeEventListener('avatar-updated', handleAvatarUpdate);
+        };
+    }, []); // Sem dependências para evitar loops
 
     // Funções de utilidade
     const getStatValue = (statKey, defaultValue = 0) => {

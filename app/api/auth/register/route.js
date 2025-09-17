@@ -62,6 +62,7 @@ export async function POST(request) {
             role: 'user', // Default role
             createdAt: new Date(),
             avatar: null,
+            backgroundImage: null, // Usuário pode fazer upload personalizado posteriormente
             preferences: {
                 favoriteGenres: [],
                 readingHistory: [],

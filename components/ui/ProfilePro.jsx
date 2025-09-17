@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card, CardContent, CardHeader, CardTitle,
 } from '@/components/ui/card';
@@ -57,6 +57,10 @@ export default function ProfilePro({ onBack }) {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showBackgroundUpload, setShowBackgroundUpload] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Função para recarregar dados
   const handleRefresh = async () => {
@@ -78,6 +82,84 @@ export default function ProfilePro({ onBack }) {
     } catch (error) {
       console.error('Erro ao adicionar atividade:', error);
     }
+  };
+
+  // Função para lidar com seleção de arquivo
+  const handleImageSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Validar tipo de arquivo
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione apenas arquivos de imagem.');
+        return;
+      }
+      
+      // Validar tamanho (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('A imagem deve ter no máximo 5MB.');
+        return;
+      }
+      
+      setSelectedImage(file);
+      
+      // Criar preview da imagem
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Função para fazer upload da imagem de fundo
+  const handleUploadBackground = async () => {
+    if (!selectedImage) return;
+    
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('background', selectedImage);
+      
+      const response = await fetch('/api/users/me/background', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('manna_auth_token')}`
+        },
+        body: formData
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Atualizar o perfil com a nova imagem
+        await updateProfile({ backgroundImage: data.imageUrl });
+        setShowBackgroundUpload(false);
+        setSelectedImage(null);
+        setImagePreview(null);
+        // Disparar evento para atualizar outras partes da UI
+        window.dispatchEvent(new CustomEvent('background-updated'));
+      } else {
+        throw new Error('Erro ao fazer upload da imagem');
+      }
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      alert('Erro ao fazer upload da imagem. Tente novamente.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Abrir modal de upload
+  const handleOpenBackgroundUpload = () => {
+    setShowBackgroundUpload(true);
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
+  // Fechar modal e limpar estados
+  const handleCloseBackgroundUpload = () => {
+    setShowBackgroundUpload(false);
+    setSelectedImage(null);
+    setImagePreview(null);
   };
 
   const formatDate = (dateString) => {
@@ -158,6 +240,96 @@ export default function ProfilePro({ onBack }) {
     return <UserSettings onBack={() => setShowSettings(false)} />;
   }
 
+  // Mostrar modal de upload de background se solicitado
+  if (showBackgroundUpload) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-lg mx-auto">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleCloseBackgroundUpload}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Voltar
+              </Button>
+              <CardTitle>Upload de Imagem de Fundo</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            {/* Área de Upload */}
+            <div className="space-y-4">
+              <label htmlFor="background-upload" className="block">
+                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors">
+                  <div className="space-y-2">
+                    <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                      📷
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Clique para selecionar uma imagem</p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG, JPEG até 5MB</p>
+                    </div>
+                  </div>
+                </div>
+              </label>
+              <input
+                id="background-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+            </div>
+
+            {/* Preview da Imagem */}
+            {imagePreview && (
+              <div className="space-y-3">
+                <h4 className="font-medium">Preview da Imagem:</h4>
+                <div className="relative h-32 rounded-lg overflow-hidden border">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  <p>Nome: {selectedImage?.name}</p>
+                  <p>Tamanho: {(selectedImage?.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+              </div>
+            )}
+
+            {/* Botões de Ação */}
+            <div className="flex gap-3 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={handleCloseBackgroundUpload}
+                disabled={isUploading}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleUploadBackground}
+                disabled={!selectedImage || isUploading}
+              >
+                {isUploading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  'Salvar Fundo'
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -201,89 +373,121 @@ export default function ProfilePro({ onBack }) {
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(80%_80%_at_50%_0%,_rgba(120,119,198,0.25)_0%,_rgba(0,0,0,0)_60%)]" />
         <div className="container mx-auto px-4 pt-8">
           <Card className="border border-border/60 overflow-hidden">
-            <div className="h-24 bg-gradient-to-r from-purple-600/20 via-fuchsia-600/20 to-indigo-600/20" />
-            <div className="-mt-10 px-6 md:px-8">
-              <div className="flex flex-col md:flex-row md:items-end gap-6 pb-6">
-                {loading ? (
-                  <Skeleton className="h-24 w-24 rounded-full border" />
-                ) : (
-                  <Avatar className="h-24 w-24 ring-4 ring-background -mt-2">
-                    <AvatarImage src={profileData?.avatarUrl} alt={profileData?.name || 'Avatar'} />
-                    <AvatarFallback className="text-2xl">{profileData?.name?.[0]?.toUpperCase() ?? 'U'}</AvatarFallback>
-                  </Avatar>
-                )}
+            {/* Background Image Section */}
+            <div className="relative h-64 md:h-72">
+              {/* Background Image */}
+              {profileData?.backgroundImage ? (
+                <img
+                  src={profileData.backgroundImage}
+                  alt="Background do perfil"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-fuchsia-600/20 to-indigo-600/20" />
+              )}
+              
+              {/* Dark overlay for better text readability */}
+              <div className="absolute inset-0 bg-black/40" />
 
-                <div className="flex-1">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                      <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
-                        {loading ? <Skeleton className="h-8 w-64" /> : (profileData?.name || 'Nome não disponível')}
-                      </h2>
+              {/* Edit Background Button - Top Right */}
+              <Button 
+                onClick={handleOpenBackgroundUpload} 
+                disabled={isUpdating}
+                title="Alterar imagem de fundo"
+                className="absolute top-4 right-4 bg-white/70 hover:bg-white p-2 rounded-full shadow-lg border-0 h-auto"
+                variant="ghost"
+              >
+                ✏️
+              </Button>
 
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                        {loading ? (
-                          <Skeleton className="h-4 w-40" />
-                        ) : (
-                          <span className="inline-flex items-center gap-1">
-                            <Mail className="h-4 w-4" />
-                            {profileData?.email || 'Email não disponível'}
-                          </span>
-                        )}
-                        <Separator orientation="vertical" className="hidden md:block h-4" />
-                        {loading ? (
-                          <Skeleton className="h-4 w-32" />
-                        ) : (
-                          <span className="inline-flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            Último login: {formatDate(profileData?.lastLoginISO ?? Date.now())}
-                          </span>
-                        )}
-                      </div>
+              {/* Profile Info Overlay - Bottom Left */}
+              <div className="absolute bottom-6 left-6 right-6">
+                <div className="flex flex-col md:flex-row md:items-end gap-6">
+                  {/* Avatar */}
+                  {loading ? (
+                    <Skeleton className="h-24 w-24 rounded-full border-4 border-white" />
+                  ) : (
+                    <Avatar className="h-24 w-24 ring-4 ring-white shadow-lg">
+                      <AvatarImage 
+                        src={profileData?.avatarUrl} 
+                        alt={profileData?.name || 'Avatar'} 
+                        onLoad={() => console.log('Avatar loaded:', profileData?.avatarUrl)}
+                        onError={() => console.log('Avatar failed to load:', profileData?.avatarUrl)}
+                      />
+                      <AvatarFallback className="text-2xl">{profileData?.name?.[0]?.toUpperCase() ?? 'U'}</AvatarFallback>
+                    </Avatar>
+                  )}
 
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {loading ? (
-                          <>
-                            <Skeleton className="h-6 w-16" />
-                            <Skeleton className="h-6 w-20" />
-                          </>
-                        ) : (
-                          profileData?.roles?.map((role) => (
-                            <Badge
-                              key={role}
-                              variant={getRoleVariant(role)}
-                              className="capitalize"
-                            >
-                              <Shield className="h-3.5 w-3.5 mr-1" />
-                              {getRoleLabel(role)}
-                            </Badge>
-                          ))
-                        )}
-                      </div>
+                  {/* User Info */}
+                  <div className="flex-1 text-white">
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight drop-shadow-lg">
+                      {loading ? <Skeleton className="h-8 w-64 bg-white/20" /> : (profileData?.name || 'Nome não disponível')}
+                    </h2>
+
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-white/90">
+                      {loading ? (
+                        <Skeleton className="h-4 w-40 bg-white/20" />
+                      ) : (
+                        <span className="inline-flex items-center gap-1 drop-shadow">
+                          <Mail className="h-4 w-4" />
+                          {profileData?.email || 'Email não disponível'}
+                        </span>
+                      )}
+                      <Separator orientation="vertical" className="hidden md:block h-4 bg-white/50" />
+                      {loading ? (
+                        <Skeleton className="h-4 w-32 bg-white/20" />
+                      ) : (
+                        <span className="inline-flex items-center gap-1 drop-shadow">
+                          <Calendar className="h-4 w-4" />
+                          Último login: {formatDate(profileData?.lastLoginISO ?? Date.now())}
+                        </span>
+                      )}
                     </div>
 
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="secondary" 
-                        onClick={handleRefresh}
-                        disabled={isRefreshing}
-                      >
-                        <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                        {isRefreshing ? 'Atualizando...' : 'Atualizar'}
-                      </Button>
-                      <Button onClick={handleAddDemoActivity} disabled={isUpdating}>
-                        <Pencil className="h-4 w-4 mr-2" />
-                        {isUpdating ? 'Salvando...' : 'Add Demo Activity'}
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setShowSettings(true)}
-                      >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Editar Perfil
-                      </Button>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {loading ? (
+                        <>
+                          <Skeleton className="h-6 w-16 bg-white/20" />
+                          <Skeleton className="h-6 w-20 bg-white/20" />
+                        </>
+                      ) : (
+                        profileData?.roles?.map((role) => (
+                          <Badge
+                            key={role}
+                            variant="secondary"
+                            className="capitalize bg-white/20 text-white border-white/30 backdrop-blur-sm"
+                          >
+                            <Shield className="h-3.5 w-3.5 mr-1" />
+                            {getRoleLabel(role)}
+                          </Badge>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Action Buttons Section - Below the background */}
+            <div className="px-6 py-4 bg-card">
+              <div className="flex flex-wrap gap-2 justify-center md:justify-end">
+                <Button 
+                  variant="secondary" 
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  {isRefreshing ? 'Atualizando...' : 'Atualizar'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowSettings(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  Editar Perfil
+                </Button>
               </div>
             </div>
           </Card>

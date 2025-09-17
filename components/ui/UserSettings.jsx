@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useUser } from '@/components/providers/CustomAuthProvider';
+import { useUserProfile } from '@/hooks/use-user-profile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +31,7 @@ import {
 
 export function UserSettings({ onBack }) {
   const { user, isLoading } = useUser();
+  const { profileData, revalidate } = useUserProfile();
   const [activeTab, setActiveTab] = useState('profile');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
@@ -84,22 +86,52 @@ export function UserSettings({ onBack }) {
       const formData = new FormData();
       formData.append('image', file);
 
+      console.log('Avatar upload - Starting upload for file:', file.name, file.size);
+
+      // Get auth token
+      const token = localStorage.getItem('manna_auth_token');
+      console.log('Avatar upload - Token available:', token ? 'yes' : 'no');
+
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch('/api/users/me/avatar', {
         method: 'POST',
+        headers,
         body: formData
       });
 
+      console.log('Avatar upload - Response status:', response.status);
+      console.log('Avatar upload - Response ok:', response.ok);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Avatar upload - Error response:', errorText);
         throw new Error('Falha ao fazer upload da imagem');
       }
 
       const result = await response.json();
+      console.log('Avatar upload result:', result);
+      
       setSaveMessage('Imagem atualizada com sucesso!');
       
-      // Recarregar a página para atualizar o avatar
+      // Revalidar o perfil para atualizar a UI
+      if (revalidate) {
+        console.log('Revalidating profile after avatar upload...');
+        revalidate();
+      }
+      
+      // Disparar evento global para outros componentes
+      window.dispatchEvent(new CustomEvent('avatar-updated', { 
+        detail: { avatarUrl: result.avatarUrl } 
+      }));
+      
+      // Limpar mensagem após alguns segundos
       setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+        setSaveMessage(null);
+      }, 3000);
 
     } catch (error) {
       setUploadError('Erro ao fazer upload da imagem: ' + error.message);
@@ -258,7 +290,18 @@ export function UserSettings({ onBack }) {
           </Alert>
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(value) => {
+            setActiveTab(value);
+            // Revalidar dados quando trocar para aba avatar
+            if (value === 'avatar' && revalidate) {
+              console.log('UserSettings - Revalidating on avatar tab switch');
+              revalidate();
+            }
+          }} 
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
@@ -359,7 +402,10 @@ export function UserSettings({ onBack }) {
               <CardContent className="space-y-6">
                 <div className="flex flex-col items-center space-y-4">
                   <Avatar className="w-32 h-32">
-                    <AvatarImage src={user?.picture} alt={user?.name} />
+                    <AvatarImage 
+                      src={profileData?.avatarUrl || user?.picture} 
+                      alt={user?.name}
+                    />
                     <AvatarFallback className="text-2xl">
                       {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                     </AvatarFallback>
