@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useUser } from '@auth0/nextjs-auth0/client';
+import { useUser } from '@/components/providers/CustomAuthProvider';
 import { LogoIcon } from '@/components/ui/logo';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { UserSettings } from '@/components/ui/UserSettings';
@@ -247,7 +247,7 @@ export default function ProfilePro({ onBack }) {
                             <Skeleton className="h-6 w-20" />
                           </>
                         ) : (
-                          profileData.roles?.map((role) => (
+                          profileData?.roles?.map((role) => (
                             <Badge
                               key={role}
                               variant={getRoleVariant(role)}
@@ -360,8 +360,8 @@ export default function ProfilePro({ onBack }) {
                         </div>
                       </div>
                     ))
-                  ) : profileData.recentActivity?.length ? (
-                    profileData.recentActivity.map((activity) => (
+                  ) : profileData?.recentActivity?.length ? (
+                    profileData?.recentActivity?.map((activity) => (
                       <div key={activity.id} className="flex gap-3">
                         <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
                         <div className="flex-1">
@@ -398,8 +398,8 @@ export default function ProfilePro({ onBack }) {
                           </div>
                         </div>
                       ))
-                    ) : profileData.achievements?.length ? (
-                      profileData.achievements.map((achievement) => (
+                    ) : profileData?.achievements?.length ? (
+                      profileData?.achievements?.map((achievement) => (
                         <div key={achievement.id} className="flex items-center gap-3">
                           <div className="h-8 w-8 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
                             <span className="text-sm">{achievement.icon || '🏆'}</span>
@@ -451,8 +451,8 @@ export default function ProfilePro({ onBack }) {
               <CardContent className="space-y-4">
                 {loading ? (
                   [...Array(6)].map((_, i) => <Skeleton key={i} className="h-5 w-full" />)
-                ) : profileData.recentActivity?.length ? (
-                  profileData.recentActivity.map((activity) => (
+                ) : profileData?.recentActivity?.length ? (
+                  profileData?.recentActivity?.map((activity) => (
                     <div key={activity.id} className="flex items-center justify-between border-b pb-2">
                       <div>
                         <span className="text-sm font-medium">{activity.title}</span>

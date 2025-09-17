@@ -1,15 +1,27 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { MongoClient } from 'mongodb';
 
-// Simple in-memory user store (in production, use a real database)
-const users = new Map();
+// MongoDB connection
+let client;
+let db;
+
+async function connectToMongo() {
+    if (!client) {
+        client = new MongoClient(process.env.MONGO_URL);
+        await client.connect();
+        db = client.db(process.env.DB_NAME);
+    }
+    return db;
+}
 
 // JWT secret (in production, use environment variable)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 
 export async function POST(request) {
     try {
+        await connectToMongo();
         const { email, password, username, firstName, lastName } = await request.json();
 
         // Validate input
@@ -21,7 +33,8 @@ export async function POST(request) {
         }
 
         // Check if user already exists
-        if (users.has(email)) {
+        const existingUser = await db.collection('users').findOne({ email });
+        if (existingUser) {
             return NextResponse.json(
                 { message: 'Email já está em uso' },
                 { status: 400 }
@@ -29,13 +42,12 @@ export async function POST(request) {
         }
 
         // Check username uniqueness
-        for (const [, userData] of users) {
-            if (userData.username === username) {
-                return NextResponse.json(
-                    { message: 'Nome de usuário já está em uso' },
-                    { status: 400 }
-                );
-            }
+        const existingUsername = await db.collection('users').findOne({ username });
+        if (existingUsername) {
+            return NextResponse.json(
+                { message: 'Nome de usuário já está em uso' },
+                { status: 400 }
+            );
         }
 
         // Hash password
@@ -43,27 +55,42 @@ export async function POST(request) {
 
         // Create user
         const newUser = {
-            id: Date.now().toString(),
             email,
             username,
-            firstName,
-            lastName,
+            name: `${firstName} ${lastName}`,
             password: hashedPassword,
-            roles: ['reader'], // Default role
-            createdAt: new Date().toISOString(),
+            role: 'user', // Default role
+            createdAt: new Date(),
             avatar: null,
-            isActive: true
+            preferences: {
+                favoriteGenres: [],
+                readingHistory: [],
+                bookmarks: []
+            }
         };
 
-        // Store user
-        users.set(email, newUser);
+        // Store user in database
+        const result = await db.collection('users').insertOne(newUser);
+
+        // Generate JWT token
+        const token = jwt.sign(
+            {
+                userId: result.insertedId.toString(),
+                email: newUser.email,
+                role: newUser.role
+            },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
 
         // Return user without password
         const { password: _, ...userWithoutPassword } = newUser;
+        userWithoutPassword.id = result.insertedId.toString();
 
         return NextResponse.json({
             message: 'Conta criada com sucesso',
-            user: userWithoutPassword
+            user: userWithoutPassword,
+            token
         });
 
     } catch (error) {

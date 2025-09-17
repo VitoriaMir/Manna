@@ -1,26 +1,50 @@
-import { useState, useEffect } from 'react';
+﻿'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useUser } from '@/components/providers/CustomAuthProvider';
+
+// Cache global para evitar múltiplas chamadas
+let profileCache = null;
+let isCurrentlyFetching = false;
 
 export function useUserProfile() {
     const { user, isLoading: userLoading } = useUser();
-    const [profileData, setProfileData] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [profileData, setProfileData] = useState(profileCache);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isUpdating, setIsUpdating] = useState(false);
+    const hasFetchedRef = useRef(false);
 
     // Função para buscar dados do perfil
-    const fetchProfile = async () => {
-        if (!user) {
+    const fetchProfile = useCallback(async () => {
+        if (!user || userLoading || isCurrentlyFetching || hasFetchedRef.current) {
+            return;
+        }
+
+        if (profileCache) {
+            setProfileData(profileCache);
             setIsLoading(false);
             return;
         }
 
         try {
+            isCurrentlyFetching = true;
+            hasFetchedRef.current = true;
+            setIsLoading(true);
             setError(null);
+
+            const token = localStorage.getItem('manna_auth_token');
+            if (!token || token === 'null' || token === 'undefined') {
+                console.log('No valid token available for profile request');
+                setIsLoading(false);
+                return;
+            }
+
             const response = await fetch('/api/users/me/profile', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
             });
 
@@ -29,14 +53,28 @@ export function useUserProfile() {
             }
 
             const data = await response.json();
+            profileCache = data;
             setProfileData(data);
         } catch (err) {
             console.error('Error fetching profile:', err);
             setError(err.message);
         } finally {
             setIsLoading(false);
+            isCurrentlyFetching = false;
         }
-    };
+    }, [user, userLoading]);
+
+    // Buscar dados quando necessário
+    useEffect(() => {
+        if (!userLoading && user && !profileCache && !hasFetchedRef.current) {
+            fetchProfile();
+        } else if (!userLoading && !user) {
+            profileCache = null;
+            setProfileData(null);
+            setIsLoading(false);
+            hasFetchedRef.current = false;
+        }
+    }, [userLoading, user, fetchProfile]);
 
     // Função para atualizar perfil
     const updateProfile = async (updates) => {
@@ -46,10 +84,16 @@ export function useUserProfile() {
 
         setIsUpdating(true);
         try {
+            const token = localStorage.getItem('manna_auth_token');
+            if (!token || token === 'null' || token === 'undefined') {
+                throw new Error('No valid authentication token available');
+            }
+
             const response = await fetch('/api/users/me/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify(updates),
             });
@@ -59,13 +103,10 @@ export function useUserProfile() {
             }
 
             const result = await response.json();
-
-            // Atualizar estado local
             if (result.success) {
-                setProfileData(prev => ({
-                    ...prev,
-                    ...updates
-                }));
+                const updatedData = { ...profileData, ...updates };
+                profileCache = updatedData;
+                setProfileData(updatedData);
             }
 
             return result;
@@ -77,14 +118,14 @@ export function useUserProfile() {
         }
     };
 
-    // Função para adicionar nova atividade
+    // Função para adicionar atividade
     const addActivity = async (activityData) => {
         if (!user) {
             throw new Error('User not authenticated');
         }
 
         try {
-            const response = await fetch('/api/users/me/profile', {
+            const response = await fetch('/api/users/me/profile/activity', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,18 +133,14 @@ export function useUserProfile() {
                 body: JSON.stringify(activityData),
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
             const result = await response.json();
-
-            // Atualizar atividades no estado local
-            if (result.success) {
-                setProfileData(prev => ({
-                    ...prev,
-                    recentActivity: [result.activity, ...prev.recentActivity].slice(0, 10)
-                }));
+            if (result.success && profileData && profileData.recentActivity) {
+                const updatedData = {
+                    ...profileData,
+                    recentActivity: [result.activity, ...(profileData.recentActivity || [])].slice(0, 10)
+                };
+                profileCache = updatedData;
+                setProfileData(updatedData);
             }
 
             return result;
@@ -114,24 +151,17 @@ export function useUserProfile() {
     };
 
     // Função para revalidar dados
-    const revalidate = () => {
+    const revalidate = useCallback(() => {
         if (user) {
+            profileCache = null;
+            hasFetchedRef.current = false;
+            isCurrentlyFetching = false;
             setIsLoading(true);
             fetchProfile();
         }
-    };
+    }, [user, fetchProfile]);
 
-    // Buscar dados quando o usuário estiver disponível
-    useEffect(() => {
-        if (!userLoading && user) {
-            fetchProfile();
-        } else if (!userLoading && !user) {
-            setIsLoading(false);
-            setProfileData(null);
-        }
-    }, [user, userLoading]);
-
-    // Funções de utilidade para manipular dados
+    // Funções de utilidade
     const getStatValue = (statKey, defaultValue = 0) => {
         return profileData?.stats?.[statKey] ?? defaultValue;
     };
@@ -140,77 +170,26 @@ export function useUserProfile() {
         return profileData?.achievements?.some(ach => ach.id === achievementId) ?? false;
     };
 
-    const getRecentActivitiesByType = (type) => {
-        return profileData?.recentActivity?.filter(activity => activity.type === type) ?? [];
+    const getRecentActivitiesByType = (type, limit = 5) => {
+        if (!profileData?.recentActivity) return [];
+        return profileData.recentActivity.filter(activity => activity.type === type).slice(0, limit);
     };
 
-    const isCreator = () => {
-        return profileData?.roles?.includes('creator') ?? false;
-    };
-
-    const isPremium = () => {
-        return profileData?.roles?.includes('premium') ?? false;
-    };
+    const isCreator = profileData?.roles?.includes('creator') ?? false;
+    const isPremium = profileData?.roles?.includes('premium') ?? false;
 
     return {
-        // Estados
         profileData,
-        isLoading: userLoading || isLoading,
-        isUpdating,
+        isLoading,
         error,
-
-        // Dados do usuário Auth0
-        user,
-
-        // Ações
+        isUpdating,
         updateProfile,
         addActivity,
         revalidate,
-
-        // Utilitários
         getStatValue,
         hasAchievement,
         getRecentActivitiesByType,
         isCreator,
         isPremium,
-    };
-}
-
-// Hook específico para estatísticas
-export function useUserStats() {
-    const { profileData, isLoading, getStatValue } = useUserProfile();
-
-    return {
-        isLoading,
-        readCount: getStatValue('readCount'),
-        favoritesCount: getStatValue('favoritesCount'),
-        inProgressCount: getStatValue('inProgressCount'),
-        readingStreakDays: getStatValue('readingStreakDays'),
-        monthlyGoalPercent: getStatValue('monthlyGoalPercent'),
-        monthlyGoal: getStatValue('monthlyGoal'),
-        monthlyRead: getStatValue('monthlyRead'),
-    };
-}
-
-// Hook específico para atividades
-export function useUserActivity() {
-    const { profileData, isLoading, addActivity, getRecentActivitiesByType } = useUserProfile();
-
-    return {
-        isLoading,
-        recentActivity: profileData?.recentActivity ?? [],
-        addActivity,
-        getRecentActivitiesByType,
-    };
-}
-
-// Hook específico para conquistas
-export function useUserAchievements() {
-    const { profileData, isLoading, hasAchievement } = useUserProfile();
-
-    return {
-        isLoading,
-        achievements: profileData?.achievements ?? [],
-        hasAchievement,
     };
 }

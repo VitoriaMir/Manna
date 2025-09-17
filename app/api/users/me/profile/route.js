@@ -1,5 +1,6 @@
 // API Route para perfil do usuário
-import { getSession } from '@auth0/nextjs-auth0';
+import jwt from 'jsonwebtoken';
+import { getUserFromRequest } from '@/lib/auth-utils';
 
 // Simulação de banco de dados em memória (substitua por DB real)
 const userProfiles = new Map();
@@ -134,14 +135,13 @@ function initializeUserData(userId, user) {
 
 export async function GET(request) {
     try {
-        const session = await getSession();
+        const user = await getUserFromRequest(request);
 
-        if (!session?.user) {
+        if (!user) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const user = session.user;
-        const userId = user.sub;
+        const userId = user.id;
 
         // Inicializar dados do usuário se não existir
         initializeUserData(userId, user);
@@ -155,7 +155,7 @@ export async function GET(request) {
 
         // Construir resposta completa
         const profileData = {
-            name: user.name || user.nickname || user.email?.split('@')[0] || 'Usuário',
+            name: user.name || user.email?.split('@')[0] || 'Usuário',
             email: user.email,
             avatarUrl: user.picture,
             lastLoginISO: user.updated_at || new Date().toISOString(),
@@ -188,13 +188,13 @@ export async function GET(request) {
 
 export async function PUT(request) {
     try {
-        const session = await getSession();
+        const user = await getUserFromRequest(request);
 
-        if (!session?.user) {
+        if (!user) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const userId = session.user.sub;
+        const userId = user.id;
         const updates = await request.json();
 
         // Validar dados de entrada

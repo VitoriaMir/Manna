@@ -1,5 +1,6 @@
 // API para atualizar configurações do perfil do usuário
-import { getSession } from '@auth0/nextjs-auth0';
+import { NextRequest, NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken';
 
 export async function PUT(req) {
     try {

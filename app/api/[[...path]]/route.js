@@ -96,7 +96,8 @@ async function handleRoute(request, { params }) {
     const method = request.method
 
     try {
-        const db = await connectToMongo()
+        // Connect to MongoDB
+        await connectToMongo()
 
         // Root endpoint
         if (route === '/' && method === 'GET') {
@@ -106,27 +107,26 @@ async function handleRoute(request, { params }) {
         // Get all manhwas - GET /api/manhwas
         if (route === '/manhwas' && method === 'GET') {
             try {
-                // Check if database connection is available
-                if (!db) {
-                    console.error('Database connection not available, returning sample data')
-                    return handleCORS(NextResponse.json(sampleManhwas))
-                }
-
                 const manhwas = await db.collection('manhwas').find({}).toArray()
 
-                // If no manhwas in database, seed with sample data
-                if (manhwas.length === 0) {
-                    await db.collection('manhwas').insertMany(sampleManhwas)
-                    const cleanedManhwas = sampleManhwas.map(({ _id, ...rest }) => rest)
-                    return handleCORS(NextResponse.json(cleanedManhwas))
-                }
+                // Convert MongoDB data to expected format
+                const formattedManhwas = manhwas.map(manhwa => ({
+                    id: manhwa._id.toString(),
+                    title: manhwa.title,
+                    author: manhwa.author,
+                    description: manhwa.description,
+                    cover: manhwa.thumbnail || "/images/default-manhwa.jpg",
+                    genres: manhwa.genres,
+                    rating: manhwa.rating,
+                    views: manhwa.views,
+                    status: manhwa.status,
+                    chapters: manhwa.chapters || []
+                }))
 
-                // Remove MongoDB's _id field from response
-                const cleanedManhwas = manhwas.map(({ _id, ...rest }) => rest)
-                return handleCORS(NextResponse.json(cleanedManhwas))
+                return handleCORS(NextResponse.json(formattedManhwas))
 
             } catch (error) {
-                console.error('Database error, returning sample data:', error)
+                console.error('Database connection not available, returning sample data')
                 return handleCORS(NextResponse.json(sampleManhwas))
             }
         }
@@ -275,29 +275,23 @@ async function handleRoute(request, { params }) {
         // Get available genres - GET /api/manhwas/genres
         if (route === '/manhwas/genres' && method === 'GET') {
             try {
-                let allGenres = []
+                const genres = await db.collection('genres').find({}).toArray()
 
-                try {
-                    // Try to get genres from database
-                    if (db) {
-                        const manhwas = await db.collection('manhwas').find({}).toArray()
-                        manhwas.forEach(manhwa => {
-                            if (manhwa.genres) {
-                                allGenres.push(...manhwa.genres)
-                            }
-                        })
-                    } else {
-                        throw new Error('Database not available')
-                    }
-                } catch (dbError) {
-                    console.error('Database genres error:', dbError)
-                    // Fallback to sample data
-                    sampleManhwas.forEach(manhwa => {
-                        if (manhwa.genres) {
-                            allGenres.push(...manhwa.genres)
-                        }
-                    })
+                if (genres.length > 0) {
+                    return handleCORS(NextResponse.json({
+                        genres: genres.map(g => g.name),
+                        total: genres.length
+                    }))
                 }
+
+                // Fallback: get unique genres from manhwas collection
+                const allGenres = []
+                const manhwas = await db.collection('manhwas').find({}).toArray()
+                manhwas.forEach(manhwa => {
+                    if (manhwa.genres) {
+                        allGenres.push(...manhwa.genres)
+                    }
+                })
 
                 // Remove duplicates and sort
                 const uniqueGenres = [...new Set(allGenres)].sort()
@@ -309,10 +303,19 @@ async function handleRoute(request, { params }) {
 
             } catch (error) {
                 console.error('Genres error:', error)
-                return handleCORS(NextResponse.json(
-                    { error: "Erro ao buscar gêneros" },
-                    { status: 500 }
-                ))
+                // Fallback to sample data
+                const allGenres = []
+                sampleManhwas.forEach(manhwa => {
+                    if (manhwa.genres) {
+                        allGenres.push(...manhwa.genres)
+                    }
+                })
+                const uniqueGenres = [...new Set(allGenres)].sort()
+
+                return handleCORS(NextResponse.json({
+                    genres: uniqueGenres,
+                    total: uniqueGenres.length
+                }))
             }
         }
 

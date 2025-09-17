@@ -56,9 +56,11 @@ import {
 import { AuthStatus } from '@/components/auth/AuthButtons'
 import { RoleGuard } from '@/components/auth/RoleGuard'
 import { useUser } from '@/components/providers/CustomAuthProvider'
+import { useAuth } from '@/components/providers/CustomAuthProvider'
 import { useTheme } from 'next-themes'
 
 export default function App() {
+    const { user, isLoading } = useAuth()
     const [currentView, setCurrentView] = useState('home')
     const [showNewHomePage, setShowNewHomePage] = useState(true) // Nova home page por padrão
     const [manhwas, setManhwas] = useState([])
@@ -164,6 +166,13 @@ export default function App() {
         loadManhwas()
         loadAvailableGenres()
     }, [])
+
+    // Check authentication and redirect to auth if not logged in
+    useEffect(() => {
+        if (!isLoading && !user && currentView === 'home') {
+            setCurrentView('auth')
+        }
+    }, [user, isLoading, currentView])
 
     // Debounced search effect
     useEffect(() => {
@@ -1314,12 +1323,36 @@ export default function App() {
         </div>
     )
 
+    // Show loading while checking authentication
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Carregando...</p>
+                </div>
+            </div>
+        )
+    }
+
     if (currentView === 'reader' && currentManhwa) {
         return <WebtoonReader manhwa={currentManhwa} chapterIndex={currentChapter} />
     }
 
     if (currentView === 'auth') {
-        return <AuthPage onSuccess={() => setCurrentView('home')} />
+        return (
+            <AuthPage
+                onNavigate={(view) => setCurrentView(view)}
+                onLogin={(userData) => {
+                    console.log('User logged in:', userData);
+                    setCurrentView('home');
+                }}
+                onRegister={(userData) => {
+                    console.log('User registered:', userData);
+                    setCurrentView('auth'); // Keep on auth page for login
+                }}
+            />
+        );
     }
 
     if (currentView === 'creator-dashboard') {

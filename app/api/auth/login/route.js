@@ -1,32 +1,27 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { MongoClient } from 'mongodb';
 
-// Simple in-memory user store (same as register)
-const users = new Map();
+// MongoDB connection
+let client;
+let db;
+
+async function connectToMongo() {
+    if (!client) {
+        client = new MongoClient(process.env.MONGO_URL);
+        await client.connect();
+        db = client.db(process.env.DB_NAME);
+    }
+    return db;
+}
 
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 
-// Add a demo user for testing
-if (users.size === 0) {
-    const demoPassword = bcrypt.hashSync('123456789', 12);
-    users.set('demo@manna.com', {
-        id: 'demo-user',
-        email: 'demo@manna.com',
-        username: 'demo_user',
-        firstName: 'Demo',
-        lastName: 'User',
-        password: demoPassword,
-        roles: ['reader', 'creator'],
-        createdAt: new Date().toISOString(),
-        avatar: null,
-        isActive: true
-    });
-}
-
 export async function POST(request) {
     try {
+        await connectToMongo();
         const { email, password } = await request.json();
 
         // Validate input
@@ -37,8 +32,8 @@ export async function POST(request) {
             );
         }
 
-        // Find user
-        const user = users.get(email);
+        // Find user in database
+        const user = await db.collection('users').findOne({ email });
         if (!user) {
             return NextResponse.json(
                 { message: 'Credenciais inválidas' },
@@ -55,30 +50,27 @@ export async function POST(request) {
             );
         }
 
-        // Check if user is active
-        if (!user.isActive) {
-            return NextResponse.json(
-                { message: 'Conta desativada' },
-                { status: 403 }
-            );
-        }
-
         // Generate JWT token
         const token = jwt.sign(
             {
-                userId: user.id,
+                userId: user._id.toString(),
                 email: user.email,
-                roles: user.roles
+                role: user.role
             },
             JWT_SECRET,
             { expiresIn: '7d' }
         );
 
-        // Update last login
-        user.lastLogin = new Date().toISOString();
+        // Update last login in database
+        await db.collection('users').updateOne(
+            { _id: user._id },
+            { $set: { lastLogin: new Date() } }
+        );
 
         // Return user without password
         const { password: _, ...userWithoutPassword } = user;
+        userWithoutPassword.id = user._id.toString();
+        delete userWithoutPassword._id;
 
         return NextResponse.json({
             message: 'Login realizado com sucesso',

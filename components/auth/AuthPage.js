@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/providers/CustomAuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -234,6 +236,8 @@ const Notification = ({ type, message, onClose }) => {
 };
 
 export function AuthPage({ onNavigate, onLogin, onRegister }) {
+    const router = useRouter();
+    const { login: authLogin, register: authRegister } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -358,10 +362,43 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
         }
 
         try {
-            const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-            const payload = isLogin
-                ? { email: formData.email, password: formData.password }
-                : {
+            if (isLogin) {
+                // Usar o login do AuthProvider
+                const credentials = {
+                    email: formData.email,
+                    password: formData.password
+                };
+
+                console.log('Usando authLogin com:', credentials);
+                const result = await authLogin(credentials);
+
+                if (result.success) {
+                    setNotification({
+                        type: 'success',
+                        message: `Bem-vindo de volta, ${result.user?.name || 'usuário'}!`
+                    });
+
+                    setTimeout(() => {
+                        // Chamar callback se fornecido
+                        onLogin?.(result.user);
+
+                        // Tentar diferentes métodos de redirecionamento
+                        if (onNavigate) {
+                            onNavigate('home');
+                        } else {
+                            // Fallback: usar Next.js router
+                            router.push('/');
+                        }
+                    }, 1000);
+                } else {
+                    setNotification({
+                        type: 'error',
+                        message: result.error || 'Erro ao fazer login'
+                    });
+                }
+            } else {
+                // Usar o register do AuthProvider
+                const userData = {
                     email: formData.email,
                     password: formData.password,
                     username: formData.username,
@@ -369,25 +406,9 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                     lastName: formData.lastName
                 };
 
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+                const result = await authRegister(userData);
 
-            const data = await response.json();
-
-            if (response.ok) {
-                if (isLogin) {
-                    setNotification({
-                        type: 'success',
-                        message: `Bem-vindo de volta, ${data.user?.firstName || 'usuário'}!`
-                    });
-                    setTimeout(() => {
-                        onLogin?.(data.user);
-                        onNavigate?.('home');
-                    }, 1000);
-                } else {
+                if (result.success) {
                     setNotification({
                         type: 'success',
                         message: 'Conta criada com sucesso! Faça login para continuar.'
@@ -396,15 +417,18 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                         setIsLogin(true);
                         resetForm();
                     }, 2000);
-                    onRegister?.(data.user);
+                    onRegister?.(result.user);
+                } else {
+                    setNotification({
+                        type: 'error',
+                        message: result.error || 'Erro ao criar conta'
+                    });
                 }
-            } else {
-                setNotification({
-                    type: 'error',
-                    message: data.message || `Erro ao ${isLogin ? 'fazer login' : 'criar conta'}`
-                });
             }
         } catch (error) {
+            console.error('Erro na requisição:', error);
+            console.error('Tipo do erro:', error.name);
+            console.error('Mensagem do erro:', error.message);
             setNotification({
                 type: 'error',
                 message: 'Erro de conexão. Verifique sua internet e tente novamente.'
@@ -804,6 +828,12 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                                 <div className="text-right">
                                     <button
                                         type="button"
+                                        onClick={() => {
+                                            setNotification({
+                                                type: 'success',
+                                                message: 'Em breve enviaremos instruções para recuperação de senha por e-mail!'
+                                            });
+                                        }}
                                         className="text-sm text-amber-400 hover:text-amber-300 transition-colors font-medium underline"
                                         disabled={isLoading}
                                     >
@@ -864,7 +894,14 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                         <div className="text-center pt-6 border-t border-white/10">
                             <button
                                 type="button"
-                                onClick={() => onNavigate?.('home')}
+                                onClick={() => {
+                                    if (onNavigate) {
+                                        onNavigate('home');
+                                    } else {
+                                        // Fallback: redirecionar para a página inicial
+                                        window.location.href = '/';
+                                    }
+                                }}
                                 disabled={isLoading}
                                 className="text-sm text-slate-400 hover:text-amber-400 transition-all duration-300 flex items-center justify-center space-x-2 mx-auto group disabled:opacity-50 p-2 rounded-lg hover:bg-white/5"
                             >

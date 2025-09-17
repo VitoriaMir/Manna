@@ -4,7 +4,7 @@ import sharp from 'sharp'
 import fs from 'fs-extra'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
-import { getSession } from '@auth0/nextjs-auth0'
+import jwt from 'jsonwebtoken'
 
 // Configure multer for memory storage
 const upload = multer({

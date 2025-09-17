@@ -1,18 +1,18 @@
 // API para upload de avatar do usuário
-import { getSession } from '@auth0/nextjs-auth0';
+import jwt from 'jsonwebtoken';
 import { writeFile, mkdir } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
+import { getUserFromRequest } from '@/lib/auth-utils';
 
 export async function POST(req) {
     try {
-        const session = await getSession(req);
+        const user = await getUserFromRequest(req);
 
-        if (!session || !session.user) {
+        if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const user = session.user;
         const formData = await req.formData();
         const file = formData.get('image');
 
