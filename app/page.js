@@ -23,6 +23,7 @@ import ProfilePro from '@/components/ui/ProfilePro'
 import { ProfileApiDemo } from '@/components/ui/ProfileApiDemo'
 import { UserSettings } from '@/components/ui/UserSettings'
 import { ManhwaHomePage } from '@/components/ui/ManhwaHomePage'
+import { AuthPage } from '@/components/auth/AuthPage'
 import {
     Book,
     BookOpen,
@@ -54,7 +55,7 @@ import {
 } from 'lucide-react'
 import { AuthStatus } from '@/components/auth/AuthButtons'
 import { RoleGuard } from '@/components/auth/RoleGuard'
-import { useUser } from '@auth0/nextjs-auth0/client'
+import { useUser } from '@/components/providers/CustomAuthProvider'
 import { useTheme } from 'next-themes'
 
 export default function App() {
@@ -108,7 +109,7 @@ export default function App() {
     // Authenticated navigation button
     const AuthenticatedNavButton = () => {
         const { user } = useUser()
-        const userRoles = user?.['https://manna-app.com/roles'] || []
+        const userRoles = user?.roles || []
         const isCreator = userRoles.includes('creator')
 
         if (!user) {
@@ -118,14 +119,8 @@ export default function App() {
                     size="sm"
                     className="flex-col gap-1"
                     onClick={() => {
-                        // Try direct login, fallback to demo mode if 502 error
-                        try {
-                            window.location.href = '/api/auth/login'
-                        } catch (error) {
-                            console.log('Login redirect failed, showing demo mode')
-                            alert('Modo Demo: Em um ambiente de produção real, você seria redirecionado para o Auth0. As funcionalidades de creator estão disponíveis para demonstração.')
-                            setCurrentView('creator-dashboard')
-                        }
+                        // Navigate to our custom auth page
+                        setCurrentView('auth')
                     }}
                 >
                     <User className="h-4 w-4" />
@@ -505,7 +500,7 @@ export default function App() {
             )
         }
 
-        const userRoles = user?.['https://manna-app.com/roles'] || []
+        const userRoles = user?.roles || []
 
         return (
             <div className="min-h-screen bg-background">
@@ -1215,6 +1210,7 @@ export default function App() {
                 </div>
             </section>
 
+            {/* Debug Section - Remove this after testing */}
             {/* Featured Manhwas */}
             <section className="py-16 px-4">
                 <div className="container mx-auto">
@@ -1320,6 +1316,10 @@ export default function App() {
 
     if (currentView === 'reader' && currentManhwa) {
         return <WebtoonReader manhwa={currentManhwa} chapterIndex={currentChapter} />
+    }
+
+    if (currentView === 'auth') {
+        return <AuthPage onSuccess={() => setCurrentView('home')} />
     }
 
     if (currentView === 'creator-dashboard') {

@@ -1,7 +1,7 @@
 'use client'
 
-import { UserProvider } from '@auth0/nextjs-auth0/client'
+import { CustomAuthProvider } from './CustomAuthProvider'
 
 export function AuthProvider({ children }) {
-  return <UserProvider>{children}</UserProvider>
+  return <CustomAuthProvider>{children}</CustomAuthProvider>
 }

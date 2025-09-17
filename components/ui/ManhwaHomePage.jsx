@@ -569,7 +569,7 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
                   </Button>
                 </div>
               ) : (
-                <AuthStatus />
+                <AuthStatus onNavigate={onNavigate} />
               )}
               
               <Button 

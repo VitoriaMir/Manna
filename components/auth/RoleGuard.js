@@ -1,6 +1,6 @@
 'use client'
 
-import { useUser } from '@auth0/nextjs-auth0/client'
+import { useUser } from '@/components/providers/CustomAuthProvider'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,12 +11,7 @@ export function RoleGuard({ children, requiredRoles, fallback }) {
   const { user, error, isLoading } = useUser()
   const router = useRouter()
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/api/auth/login')
-    }
-  }, [user, isLoading, router])
-
+  // Don't redirect, just show fallback or login button if not authenticated
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -41,8 +36,8 @@ export function RoleGuard({ children, requiredRoles, fallback }) {
             <p className="text-muted-foreground mb-4">
               Ocorreu um erro ao verificar sua autenticação.
             </p>
-            <Button asChild>
-              <a href="/api/auth/login">Tentar Novamente</a>
+            <Button onClick={() => window.location.reload()}>
+              Tentar Novamente
             </Button>
           </CardContent>
         </Card>
@@ -51,6 +46,10 @@ export function RoleGuard({ children, requiredRoles, fallback }) {
   }
 
   if (!user) {
+    if (fallback) {
+      return fallback
+    }
+
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -62,8 +61,8 @@ export function RoleGuard({ children, requiredRoles, fallback }) {
             <p className="text-muted-foreground mb-4">
               Você precisa estar logado para acessar esta página.
             </p>
-            <Button asChild>
-              <a href="/api/auth/login">Fazer Login</a>
+            <Button onClick={() => window.location.reload()}>
+              Fazer Login
             </Button>
           </CardContent>
         </Card>
@@ -72,7 +71,7 @@ export function RoleGuard({ children, requiredRoles, fallback }) {
   }
 
   // Extract roles from user object
-  const userRoles = user['https://manna-app.com/roles'] || []
+  const userRoles = user.roles || []
   const hasRequiredRole = requiredRoles.some(role => userRoles.includes(role))
 
   if (!hasRequiredRole) {

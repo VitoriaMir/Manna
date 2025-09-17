@@ -1,9 +1,9 @@
 'use client'
 
-import { useUser } from '@auth0/nextjs-auth0/client'
+import { useUser, useAuth } from '@/components/providers/CustomAuthProvider'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -12,15 +12,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { User, LogOut, Settings, BookOpen, Upload } from 'lucide-react'
 
-export function LoginButton() {
+export function LoginButton({ onLoginClick = () => console.warn('onLoginClick not provided') }) {
   const handleLogin = () => {
-    try {
-      // Try Auth0 login first
-      window.location.href = '/api/auth/login'
-    } catch (error) {
-      // Fallback for demo purposes if there's a 502 error
-      alert('Modo Demo: Login via Auth0 temporariamente indisponível. Demonstração das funcionalidades disponível.')
-      console.log('Auth0 login temporarily unavailable:', error)
+    if (onLoginClick) {
+      onLoginClick()
     }
   }
 
@@ -32,15 +27,17 @@ export function LoginButton() {
 }
 
 export function LogoutButton() {
+  const { logout } = useAuth()
+
   return (
-    <Button variant="ghost" asChild>
-      <a href="/api/auth/logout">Sair</a>
+    <Button variant="ghost" onClick={logout}>
+      Sair
     </Button>
   )
 }
 
-export function UserMenu({ user, onNavigate }) {
-  const userRoles = user?.['https://manna-app.com/roles'] || []
+export function UserMenu({ user, onNavigate = () => console.warn('onNavigate not provided') }) {
+  const userRoles = user?.roles || []
   const isCreator = userRoles.includes('creator')
 
   return (
@@ -72,38 +69,35 @@ export function UserMenu({ user, onNavigate }) {
           </div>
         </div>
         <DropdownMenuSeparator />
-        
-        <DropdownMenuItem onClick={() => onNavigate('profile')}>
+
+        <DropdownMenuItem onClick={() => onNavigate && onNavigate('profile')}>
           <User className="mr-2 h-4 w-4" />
           Perfil
         </DropdownMenuItem>
-        
-        <DropdownMenuItem onClick={() => onNavigate('library')}>
+
+        <DropdownMenuItem onClick={() => onNavigate && onNavigate('library')}>
           <BookOpen className="mr-2 h-4 w-4" />
           Minha Biblioteca
         </DropdownMenuItem>
-        
+
         {isCreator && (
-          <DropdownMenuItem onClick={() => onNavigate('creator-dashboard')}>
+          <DropdownMenuItem onClick={() => onNavigate && onNavigate('creator-dashboard')}>
             <Upload className="mr-2 h-4 w-4" />
             Creator Studio
           </DropdownMenuItem>
         )}
-        
+
         <DropdownMenuSeparator />
-        
+
         <DropdownMenuItem asChild>
-          <a href="/api/auth/logout" className="flex items-center text-red-600">
-            <LogOut className="mr-2 h-4 w-4" />
-            Sair
-          </a>
+          <LogoutButton />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
-export function AuthStatus({ onNavigate }) {
+export function AuthStatus({ onNavigate = () => console.warn('onNavigate not provided') }) {
   const { user, error, isLoading } = useUser()
 
   if (isLoading) {
@@ -116,7 +110,7 @@ export function AuthStatus({ onNavigate }) {
 
   if (error) {
     console.error('Auth error:', error)
-    return <LoginButton />
+    return <LoginButton onLoginClick={() => onNavigate && onNavigate('auth')} />
   }
 
   return (
@@ -124,7 +118,7 @@ export function AuthStatus({ onNavigate }) {
       {user ? (
         <UserMenu user={user} onNavigate={onNavigate} />
       ) : (
-        <LoginButton />
+        <LoginButton onLoginClick={() => onNavigate && onNavigate('auth')} />
       )}
     </div>
   )

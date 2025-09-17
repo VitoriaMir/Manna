@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useUser } from '@auth0/nextjs-auth0/client';
+import { useUser } from '@/components/providers/CustomAuthProvider';
 
 export function useUserProfile() {
     const { user, isLoading: userLoading } = useUser();
