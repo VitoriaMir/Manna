@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { LogoIcon } from '@/components/ui/logo';
 import { AuthStatus } from '@/components/auth/AuthButtons';
 import { useAuth } from '@/components/providers/CustomAuthProvider';
@@ -463,6 +464,7 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Auto-slide with pause on hover
   useEffect(() => {
@@ -564,11 +566,7 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => {
-                      if (confirm('Deseja realmente sair?')) {
-                        logout();
-                      }
-                    }}
+                    onClick={() => setShowLogoutModal(true)}
                     className="text-white hover:text-red-400 border-white/30 hover:border-red-400 bg-transparent hover:bg-red-500/10 p-3 rounded-xl transition-all duration-300 flex items-center gap-2"
                   >
                     <LogOut className="h-4 w-4" />
@@ -970,6 +968,42 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
           overflow: hidden;
         }
       `}</style>
+
+      {/* Modal de Logout Personalizado */}
+      <Dialog open={showLogoutModal} onOpenChange={setShowLogoutModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <LogOut className="h-8 w-8 text-red-600" />
+            </div>
+            <DialogTitle className="text-xl font-semibold text-gray-900">
+              Confirmar Logout
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-2">
+              Tem certeza que deseja sair da sua conta? Você precisará fazer login novamente para acessar o sistema.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-6">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowLogoutModal(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={() => {
+                logout();
+                setShowLogoutModal(false);
+              }}
+            >
+              Sair
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
