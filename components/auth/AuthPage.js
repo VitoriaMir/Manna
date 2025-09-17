@@ -27,7 +27,6 @@ import {
     CheckCircle2,
     Star,
     Users,
-    TrendingUp,
     Globe,
     Smartphone,
     Award
@@ -203,8 +202,7 @@ const FeatureCard = React.memo(({ icon: Icon, title, description, stat, delay = 
                         {title}
                     </h3>
                     {stat && (
-                        <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-400/20 to-orange-500/20 backdrop-blur-sm rounded-full px-3 py-1 border border-amber-400/30 group-hover:border-amber-400/50 transition-all duration-300">
-                            <TrendingUp className="h-3 w-3 text-amber-400" />
+                        <div className="bg-gradient-to-r from-amber-400/20 to-orange-500/20 backdrop-blur-sm rounded-full px-3 py-1 border border-amber-400/30 group-hover:border-amber-400/50 transition-all duration-300">
                             <span className="text-amber-400 font-bold text-xs">{stat}</span>
                         </div>
                     )}
@@ -563,15 +561,15 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
 
             <div className="relative z-10 min-h-screen flex">
                 {/* Enhanced left side with premium design */}
-                <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-8 xl:p-12 relative overflow-hidden">
+                <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-8 xl:p-12 relative overflow-hidden min-h-screen">
                     {/* Decorative elements */}
                     <div className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"></div>
                     <div className="absolute bottom-20 left-10 w-24 h-24 bg-gradient-to-br from-purple-400/20 to-blue-500/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
 
-                    {/* Main content container with better spacing */}
-                    <div className="w-full max-w-3xl mx-auto space-y-12">
+                    {/* Main content container with perfect centering */}
+                    <div className="w-full max-w-3xl space-y-8 flex flex-col justify-center items-center text-center">
                         {/* Header with enhanced branding */}
-                        <div className="space-y-6 animate-slideInLeft relative z-10 text-center">
+                        <div className="space-y-6 animate-slideInLeft relative z-10">
                             <div className="flex items-center justify-center space-x-6 group">
                                 <div className="relative">
                                     {/* Glowing ring effect */}
@@ -588,7 +586,7 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                                     <span className="text-6xl font-black bg-gradient-to-r from-amber-400 via-amber-300 to-orange-400 bg-clip-text text-transparent drop-shadow-2xl">
                                         MANNA
                                     </span>
-                                    <div className="flex items-center space-x-2">
+                                    <div className="flex items-center justify-center space-x-2">
                                         <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
                                         <p className="text-amber-400/90 text-sm font-bold tracking-[0.2em] uppercase">
                                             Manhwa Universe
@@ -623,7 +621,7 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                                     )}
                                 </h1>
 
-                                <p className="text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto font-medium">
+                                <p className="text-xl text-slate-300 leading-relaxed max-w-2xl font-medium">
                                     {isLogin
                                         ? '🚀 Continue sua jornada épica através de universos infinitos. Seus favoritos te aguardam!'
                                         : '✨ Descubra um universo de histórias épicas, conecte-se com milhões de leitores e viva aventuras inesquecíveis!'
@@ -659,8 +657,8 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                             </div>
                         </div>
 
-                        {/* Premium features section with better centering */}
-                        <div className="space-y-4 relative z-10 w-full max-w-2xl mx-auto">
+                        {/* Premium features section with perfect centering */}
+                        <div className="space-y-4 relative z-10 w-full max-w-2xl">
                             <div className="text-center mb-6">
                                 <h2 className="text-xl lg:text-2xl font-bold text-white mb-2">Por que escolher a MANNA?</h2>
                                 <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full mx-auto"></div>
@@ -1322,7 +1320,7 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                 .group:hover .group-hover\\:-translate-x-1 {
                     transform: translateX(-0.25rem);
                 }
-
+ 
                 .group:hover .group-hover\\:scale-110 {
                     transform: scale(1.1);
                 }

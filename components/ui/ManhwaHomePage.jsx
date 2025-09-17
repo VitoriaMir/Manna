@@ -22,7 +22,6 @@ import {
   Heart,
   Bookmark,
   Clock,
-  TrendingUp,
   Award,
   Calendar,
   Filter,
@@ -284,12 +283,7 @@ const ManhwaCard = React.memo(({ manhwa, onClick, variant = 'default', index = 0
               </div>
             </div>
             
-            {manhwa.isHot && (
-              <div className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 shadow-lg border border-red-400 animate-pulse">
-                <span>🔥</span>
-                <span>TRENDING</span>
-              </div>
-            )}
+            {/* Removed trending badge for cleaner design */}
           </div>
           
           {/* Title */}
@@ -722,12 +716,7 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
                     
                     {/* Status Badges */}
                     <div className="absolute top-6 right-6 z-30 space-y-3">
-                      {currentManhwa.isHot && (
-                        <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center space-x-2 shadow-xl border-2 border-red-400 animate-pulse">
-                          <span>🔥</span>
-                          <span>TRENDING</span>
-                        </div>
-                      )}
+                      {/* Removed trending badge for cleaner design */}
                       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl border-2 border-green-400">
                         {currentManhwa.status}
                       </div>
