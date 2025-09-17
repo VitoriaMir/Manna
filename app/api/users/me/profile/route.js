@@ -57,6 +57,34 @@ export async function GET(request) {
 
         console.log('Profile API - Final avatar URL:', avatarUrl);
 
+        // Verificar se existe background no sistema de arquivos se não houver no perfil
+        let backgroundImageUrl = profile?.backgroundImage;
+
+        if (!backgroundImageUrl) {
+            try {
+                const backgroundsDir = path.join(process.cwd(), 'public', 'uploads', 'backgrounds');
+                const files = await readdir(backgroundsDir);
+                const safeUserId = String(userId).replace(/[|@]/g, '_');
+                const userBackgroundFiles = files.filter(file => file.startsWith(safeUserId));
+
+                if (userBackgroundFiles.length > 0) {
+                    // Usar o arquivo mais recente
+                    const latestFile = userBackgroundFiles.sort().pop();
+                    backgroundImageUrl = `/uploads/backgrounds/${latestFile}`;
+
+                    // Atualizar o perfil com a URL encontrada
+                    const updatedProfile = { ...profile, backgroundImage: backgroundImageUrl };
+                    userProfiles.set(userId, updatedProfile);
+
+                    console.log('Profile API - Restored background from filesystem:', backgroundImageUrl);
+                }
+            } catch (error) {
+                console.log('Profile API - Error checking background files:', error.message);
+            }
+        }
+
+        console.log('Profile API - Final background URL:', backgroundImageUrl);
+
         // Calcular estatísticas dinâmicas
         const monthlyGoalPercent = Math.round((profile.monthlyRead / profile.monthlyGoal) * 100);
 
@@ -65,7 +93,7 @@ export async function GET(request) {
             name: user.name || user.email?.split('@')[0] || 'Usuário',
             email: user.email,
             avatarUrl: avatarUrl, // Usar a URL determinada acima
-            backgroundImage: profile.backgroundImage, // Imagem de fundo (null se não definida)
+            backgroundImage: backgroundImageUrl, // Usar a URL restaurada ou existente
             lastLoginISO: user.updated_at || new Date().toISOString(),
             joinedDate: profile.joinedDate,
             roles: user['https://manna-app.com/roles'] || ['reader'],

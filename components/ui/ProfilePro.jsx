@@ -61,11 +61,42 @@ export default function ProfilePro({ onBack }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageTimestamp, setImageTimestamp] = useState(Date.now());
+
+  // Debug do F5
+  useEffect(() => {
+    console.log('ProfilePro mounted/updated:', {
+      user: !!user,
+      profileData: !!profileData,
+      backgroundImage: profileData?.backgroundImage,
+      isLoading,
+      loading
+    });
+  }, [user, profileData, isLoading, loading]);
+
+  // Atualizar timestamp da imagem quando profileData muda (para forçar reload após F5)
+  useEffect(() => {
+    if (profileData?.backgroundImage) {
+      setImageTimestamp(Date.now());
+    }
+  }, [profileData?.backgroundImage]);
+
+  // Listener para evento de background atualizado
+  useEffect(() => {
+    const handleBackgroundUpdate = () => {
+      setImageTimestamp(Date.now());
+    };
+
+    window.addEventListener('background-updated', handleBackgroundUpdate);
+    return () => window.removeEventListener('background-updated', handleBackgroundUpdate);
+  }, []);
 
   // Função para recarregar dados
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    revalidate();
+    // Forçar atualização da imagem
+    setImageTimestamp(Date.now());
+    revalidate(true); // Força refresh apenas quando o usuário solicita explicitamente
     setTimeout(() => setIsRefreshing(false), 1000);
   };
 
@@ -130,13 +161,18 @@ export default function ProfilePro({ onBack }) {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('Background uploaded successfully:', data.imageUrl);
         // Atualizar o perfil com a nova imagem
         await updateProfile({ backgroundImage: data.imageUrl });
+        // Forçar atualização da imagem
+        setImageTimestamp(Date.now());
         setShowBackgroundUpload(false);
         setSelectedImage(null);
         setImagePreview(null);
         // Disparar evento para atualizar outras partes da UI
-        window.dispatchEvent(new CustomEvent('background-updated'));
+        window.dispatchEvent(new CustomEvent('background-updated', { 
+          detail: { imageUrl: data.imageUrl } 
+        }));
       } else {
         throw new Error('Erro ao fazer upload da imagem');
       }
@@ -378,9 +414,11 @@ export default function ProfilePro({ onBack }) {
               {/* Background Image */}
               {profileData?.backgroundImage ? (
                 <img
-                  src={profileData.backgroundImage}
+                  src={`${profileData.backgroundImage}?t=${imageTimestamp}`}
                   alt="Background do perfil"
                   className="absolute inset-0 w-full h-full object-cover"
+                  onLoad={() => console.log('Background image loaded successfully')}
+                  onError={() => console.log('Background image failed to load:', profileData.backgroundImage)}
                 />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-fuchsia-600/20 to-indigo-600/20" />

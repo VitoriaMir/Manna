@@ -3,15 +3,52 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useUser } from '@/components/providers/CustomAuthProvider';
 
-// Cache global para evitar múltiplas chamadas
+// Cache global para evitar múltiplas chamadas + persistência no localStorage
 let profileCache = null;
 let isCurrentlyFetching = false;
 let cacheTimestamp = null;
 const CACHE_DURATION = 30 * 1000; // 30 segundos
+const STORAGE_KEY = 'manna_profile_cache';
+
+// Função para salvar cache no localStorage
+const saveToStorage = (data) => {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            data,
+            timestamp: Date.now()
+        }));
+    } catch (error) {
+        console.log('Error saving profile to localStorage:', error);
+    }
+};
+
+// Função para carregar cache do localStorage
+const loadFromStorage = () => {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            const { data, timestamp } = JSON.parse(stored);
+            if (Date.now() - timestamp < CACHE_DURATION) {
+                profileCache = data;
+                cacheTimestamp = timestamp;
+                return data;
+            }
+        }
+    } catch (error) {
+        console.log('Error loading profile from localStorage:', error);
+    }
+    return null;
+};
 
 export function useUserProfile() {
     const { user, isLoading: userLoading, getAccessToken } = useUser();
-    const [profileData, setProfileData] = useState(profileCache);
+
+    // Tentar carregar do localStorage primeiro
+    const [profileData, setProfileData] = useState(() => {
+        const stored = loadFromStorage();
+        return stored || profileCache;
+    });
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -33,7 +70,7 @@ export function useUserProfile() {
         }
 
         // Verificar cache apenas se não for force
-        if (!force && profileCache) {
+        if (!force && profileCache && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_DURATION)) {
             console.log('Using cached data');
             setProfileData(profileCache);
             setIsLoading(false);
@@ -64,10 +101,19 @@ export function useUserProfile() {
                 const data = await response.json();
                 console.log('Profile data fetched successfully:', data);
 
-                // Atualizar cache e estado
+                // Atualizar cache e estado com timestamp + localStorage
                 profileCache = data;
+                cacheTimestamp = Date.now();
                 setProfileData(data);
+                saveToStorage(data); // Salvar no localStorage
                 hasFetchedRef.current = true;
+
+                // Disparar evento para atualizar imagem se background mudou
+                if (data.backgroundImage) {
+                    window.dispatchEvent(new CustomEvent('background-updated', {
+                        detail: { backgroundImage: data.backgroundImage }
+                    }));
+                }
             }
         } catch (error) {
             console.error('Error fetching profile:', error);
@@ -161,19 +207,21 @@ export function useUserProfile() {
         }
     };
 
-    // Função para revalidar dados
-    const revalidate = useCallback(() => {
+    // Função para revalidar dados (preserva cache quando apropriado)
+    const revalidate = useCallback((forceRefresh = false) => {
         if (user) {
-            console.log('Force revalidating profile data...');
-            profileCache = null;
-            hasFetchedRef.current = false;
-            isCurrentlyFetching = false;
-            setIsLoading(true);
-            fetchProfile(true); // Força refresh
+            console.log('Revalidating profile data...', { forceRefresh });
+            if (forceRefresh) {
+                profileCache = null;
+                hasFetchedRef.current = false;
+                isCurrentlyFetching = false;
+                setIsLoading(true);
+            }
+            fetchProfile(forceRefresh); // Só força refresh se explicitamente solicitado
         }
     }, [user, fetchProfile]);
 
-    // Escutar apenas evento de atualização de avatar (sem focus)
+    // Escutar eventos de atualização de avatar e background
     useEffect(() => {
         const handleAvatarUpdate = () => {
             console.log('Avatar update event received, revalidating...');
@@ -187,12 +235,24 @@ export function useUserProfile() {
             }, 100);
         };
 
+        const handleBackgroundUpdate = (event) => {
+            console.log('Background update event received:', event.detail);
+            // Atualizar apenas o background sem recarregar tudo
+            if (profileData && event.detail?.imageUrl) {
+                const updatedData = { ...profileData, backgroundImage: event.detail.imageUrl };
+                profileCache = updatedData;
+                setProfileData(updatedData);
+            }
+        };
+
         window.addEventListener('avatar-updated', handleAvatarUpdate);
+        window.addEventListener('background-updated', handleBackgroundUpdate);
 
         return () => {
             window.removeEventListener('avatar-updated', handleAvatarUpdate);
+            window.removeEventListener('background-updated', handleBackgroundUpdate);
         };
-    }, []); // Sem dependências para evitar loops
+    }, [profileData]); // Adicionar profileData como dependência
 
     // Funções de utilidade
     const getStatValue = (statKey, defaultValue = 0) => {
