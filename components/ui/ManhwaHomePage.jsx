@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { LogoIcon } from '@/components/ui/logo';
 import { AuthStatus } from '@/components/auth/AuthButtons';
+import { useAuth } from '@/components/providers/CustomAuthProvider';
 import { 
   Search, 
   Play, 
@@ -27,7 +28,8 @@ import {
   Filter,
   Share2,
   Download,
-  Plus
+  Plus,
+  LogOut
 } from 'lucide-react';
 
 // Enhanced sample data with more realistic content
@@ -456,6 +458,7 @@ const ManhwaCard = React.memo(({ manhwa, onClick, variant = 'default', index = 0
 });
 
 export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
+  const { logout } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -557,6 +560,19 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
                   </Button>
                   <Button variant="ghost" size="sm" onClick={onShowProfile} className="text-white hover:text-amber-400 hover:bg-white/10 p-3 rounded-xl transition-all duration-300">
                     <User className="h-5 w-5" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      if (confirm('Deseja realmente sair?')) {
+                        logout();
+                      }
+                    }}
+                    className="text-white hover:text-red-400 border-white/30 hover:border-red-400 bg-transparent hover:bg-red-500/10 p-3 rounded-xl transition-all duration-300 flex items-center gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sair
                   </Button>
                 </div>
               ) : (

@@ -51,7 +51,8 @@ import {
     X,
     Filter,
     SlidersHorizontal,
-    Star
+    Star,
+    LogOut
 } from 'lucide-react'
 import { AuthStatus } from '@/components/auth/AuthButtons'
 import { RoleGuard } from '@/components/auth/RoleGuard'
@@ -60,7 +61,8 @@ import { useAuth } from '@/components/providers/CustomAuthProvider'
 import { useTheme } from 'next-themes'
 
 export default function App() {
-    const { user, isLoading } = useAuth()
+    const { user, isLoading } = useUser()
+    const { logout } = useAuth()
     const [currentView, setCurrentView] = useState('home')
     const [showNewHomePage, setShowNewHomePage] = useState(true) // Nova home page por padrão
     const [manhwas, setManhwas] = useState([])
@@ -1179,14 +1181,16 @@ export default function App() {
                             {showNewHomePage ? 'Home Clássica' : 'Nova Home'}
                         </Button>
                         <Button
-                            variant="ghost"
+                            variant="destructive"
                             size="sm"
-                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            onClick={() => {
+                                console.log('Logout button clicked', user);
+                                if (confirm('Deseja realmente sair?')) {
+                                    logout();
+                                }
+                            }}
                         >
-                            {mounted && theme === 'dark' ?
-                                <Sun className="h-4 w-4" /> :
-                                <Moon className="h-4 w-4" />
-                            }
+                            Sair
                         </Button>
                         <AuthStatusWrapper onNavigate={setCurrentView} />
                     </div>
