@@ -72,6 +72,13 @@ export async function POST(request) {
         userWithoutPassword.id = user._id.toString();
         delete userWithoutPassword._id;
 
+        // Garantir que o campo roles existe (compatibilidade com usuários antigos)
+        if (!userWithoutPassword.roles && userWithoutPassword.role) {
+            userWithoutPassword.roles = [userWithoutPassword.role];
+        } else if (!userWithoutPassword.roles) {
+            userWithoutPassword.roles = ['user'];
+        }
+
         return NextResponse.json({
             message: 'Login realizado com sucesso',
             user: userWithoutPassword,

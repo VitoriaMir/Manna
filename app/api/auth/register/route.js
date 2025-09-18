@@ -22,7 +22,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-t
 export async function POST(request) {
     try {
         await connectToMongo();
-        const { email, password, username, firstName, lastName } = await request.json();
+        const { email, password, username, firstName, lastName, role } = await request.json();
 
         // Validate input
         if (!email || !password || !username || !firstName || !lastName) {
@@ -59,7 +59,8 @@ export async function POST(request) {
             username,
             name: `${firstName} ${lastName}`,
             password: hashedPassword,
-            role: 'user', // Default role
+            role: role || 'user', // Usar role fornecido ou default 'user'
+            roles: [role || 'user'], // Adicionar array de roles para compatibilidade
             createdAt: new Date(),
             avatar: null,
             backgroundImage: null, // Usuário pode fazer upload personalizado posteriormente

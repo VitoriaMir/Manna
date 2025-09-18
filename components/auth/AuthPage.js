@@ -545,10 +545,10 @@ export function AuthPage({ onNavigate, onLogin, onRegister, creatorMode = false 
                         {/* Form header */}
                         <div className="text-center space-y-4">
                             <h2 className="text-4xl font-black text-white">
-                                {isLogin 
-                                    ? 'Entrar' 
-                                    : creatorMode 
-                                        ? 'Criar Conta Creator' 
+                                {isLogin
+                                    ? 'Entrar'
+                                    : creatorMode
+                                        ? 'Criar Conta Creator'
                                         : 'Criar Conta'
                                 }
                             </h2>
@@ -866,10 +866,10 @@ export function AuthPage({ onNavigate, onLogin, onRegister, creatorMode = false 
                                 ) : (
                                     <div className="flex items-center justify-center space-x-3 relative z-10">
                                         <span>
-                                            {isLogin 
-                                                ? 'Entrar na MANNA' 
-                                                : creatorMode 
-                                                    ? 'Criar conta Creator' 
+                                            {isLogin
+                                                ? 'Entrar na MANNA'
+                                                : creatorMode
+                                                    ? 'Criar conta Creator'
                                                     : 'Criar minha conta'
                                             }
                                         </span>
