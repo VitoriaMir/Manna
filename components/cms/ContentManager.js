@@ -23,6 +23,8 @@ import {
   XCircle,
   AlertTriangle,
   Search,
+  ArrowLeft,
+  Archive,
   Filter,
   MoreVertical,
   X
@@ -68,6 +70,7 @@ export function ContentManager({ user }) {
   const [previewContent, setPreviewContent] = useState(null)
   const [editingContent, setEditingContent] = useState(null)
   const [autoSaveStatus, setAutoSaveStatus] = useState('')
+  const [notification, setNotification] = useState('')
 
   // Form state
   const [formData, setFormData] = useState(() => {
@@ -127,6 +130,11 @@ export function ContentManager({ user }) {
     })
   }, [])
 
+  const showNotification = useCallback((message, type = 'success') => {
+    setNotification(message)
+    setTimeout(() => setNotification(''), 3000)
+  }, [])
+
   const loadContent = useCallback(async () => {
     setLoading(true)
     try {
@@ -172,14 +180,16 @@ export function ContentManager({ user }) {
         setContent(prev => [newContent, ...prev])
         setShowCreateDialog(false)
         resetForm()
+        showNotification('Conteúdo criado com sucesso!')
       } else {
         const error = await response.json()
         console.error('Error creating content:', error)
+        showNotification('Erro ao criar conteúdo: ' + (error.message || 'Erro desconhecido'), 'error')
       }
     } catch (error) {
       console.error('Error creating content:', error)
     }
-  }, [formData, makeAuthenticatedRequest])
+  }, [formData, makeAuthenticatedRequest, showNotification])
 
   const handleUpdateContent = useCallback(async (contentId, updates) => {
     try {
@@ -194,11 +204,28 @@ export function ContentManager({ user }) {
       if (response.ok) {
         const updatedContent = await response.json()
         setContent(prev => prev.map(c => c.id === contentId ? updatedContent : c))
+
+        // Mensagens específicas para cada tipo de atualização
+        if (updates.status === 'review') {
+          showNotification('Conteúdo enviado para revisão!')
+        } else if (updates.status === 'published') {
+          showNotification('Conteúdo publicado com sucesso! 🎉')
+        } else if (updates.status === 'draft') {
+          showNotification('Conteúdo voltou para rascunho')
+        } else if (updates.status === 'archived') {
+          showNotification('Conteúdo arquivado')
+        } else {
+          showNotification('Conteúdo atualizado com sucesso!')
+        }
+      } else {
+        const error = await response.json()
+        showNotification('Erro ao atualizar conteúdo: ' + (error.message || 'Erro desconhecido'), 'error')
       }
     } catch (error) {
       console.error('Error updating content:', error)
+      showNotification('Erro ao atualizar conteúdo', 'error')
     }
-  }, [makeAuthenticatedRequest])
+  }, [makeAuthenticatedRequest, showNotification])
 
   const handleDeleteContent = useCallback(async (contentId) => {
     if (!confirm('Tem certeza que deseja excluir este conteúdo?')) return
@@ -284,6 +311,14 @@ export function ContentManager({ user }) {
 
   return (
     <div className="space-y-6">
+      {/* Notificação */}
+      {notification && (
+        <div className="fixed top-4 right-4 z-50 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md shadow-lg flex items-center gap-2">
+          <CheckCircle className="h-4 w-4" />
+          {notification}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Gerenciar Conteúdo</h1>
@@ -584,6 +619,45 @@ export function ContentManager({ user }) {
                         >
                           <Upload className="h-4 w-4 mr-2" />
                           Enviar para Revisão
+                        </Button>
+                      )}
+
+                      {item.status === ContentStatus.REVIEW && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => handleUpdateContent(item.id, {
+                              status: ContentStatus.PUBLISHED,
+                              publishedAt: new Date().toISOString()
+                            })}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Publicar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleUpdateContent(item.id, { status: ContentStatus.DRAFT })}
+                          >
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            Voltar para Rascunho
+                          </Button>
+                        </>
+                      )}
+
+                      {item.status === ContentStatus.PUBLISHED && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleUpdateContent(item.id, {
+                            status: ContentStatus.ARCHIVED,
+                            archivedAt: new Date().toISOString()
+                          })}
+                        >
+                          <Archive className="h-4 w-4 mr-2" />
+                          Arquivar
                         </Button>
                       )}
 
