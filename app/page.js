@@ -169,13 +169,6 @@ export default function App() {
         loadAvailableGenres()
     }, [])
 
-    // Check authentication and redirect to auth if not logged in
-    useEffect(() => {
-        if (!isLoading && !user && currentView === 'home') {
-            setCurrentView('auth')
-        }
-    }, [user, isLoading, currentView])
-
     // Debounced search effect
     useEffect(() => {
         const delayedSearch = setTimeout(() => {
@@ -1415,7 +1408,7 @@ export default function App() {
                     }
                 }}
                 onShowProfile={() => setCurrentView('profile')}
-                currentUser={useUser()?.user}
+                currentUser={user}
             />
         );
     }

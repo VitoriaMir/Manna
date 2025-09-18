@@ -331,7 +331,11 @@ const ManhwaCard = React.memo(({ manhwa, onClick, variant = 'default', index = 0
                 size="sm" 
                 variant="ghost" 
                 className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm h-8 w-8 p-0"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLoginRequired('favorite');
+                }}
+                title="Faça login para favoritar"
               >
                 <Heart className="h-3 w-3" />
               </Button>
@@ -429,7 +433,10 @@ const ManhwaCard = React.memo(({ manhwa, onClick, variant = 'default', index = 0
               size="sm" 
               variant="secondary" 
               className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm shadow-lg"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLoginRequired('favorite');
+              }}
             >
               <Heart className="h-4 w-4" />
             </Button>
@@ -437,7 +444,10 @@ const ManhwaCard = React.memo(({ manhwa, onClick, variant = 'default', index = 0
               size="sm" 
               variant="secondary" 
               className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm shadow-lg"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLoginRequired('bookmark');
+              }}
             >
               <Bookmark className="h-4 w-4" />
             </Button>
@@ -465,6 +475,30 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // Função para lidar com ações que exigem login
+  const handleLoginRequired = (action) => {
+    if (!currentUser) {
+      setShowLoginModal(true);
+      return false;
+    }
+    // Se estiver logado, executa a ação
+    switch(action) {
+      case 'favorite':
+        console.log('Favoritado!');
+        break;
+      case 'bookmark':
+        console.log('Salvo na biblioteca!');
+        break;
+      case 'comment':
+        console.log('Redirecionando para comentários...');
+        break;
+      default:
+        break;
+    }
+    return true;
+  };
 
   // Auto-slide with pause on hover
   useEffect(() => {
@@ -685,6 +719,7 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
                     <Button 
                       variant="ghost" 
                       size="lg"
+                      onClick={() => handleLoginRequired('favorite')}
                       className="text-white hover:bg-red-500/20 hover:text-red-400 p-4 rounded-2xl transition-all duration-300 transform hover:scale-110 border-2 border-transparent hover:border-red-400/50"
                     >
                       <Heart className="h-6 w-6" />
@@ -692,6 +727,7 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
                     <Button 
                       variant="ghost" 
                       size="lg"
+                      onClick={() => handleLoginRequired('bookmark')}
                       className="text-white hover:bg-blue-500/20 hover:text-blue-400 p-4 rounded-2xl transition-all duration-300 transform hover:scale-110 border-2 border-transparent hover:border-blue-400/50"
                     >
                       <Bookmark className="h-6 w-6" />
@@ -1000,6 +1036,41 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
               }}
             >
               Sair
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Login Necessário */}
+      <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+              <User className="h-8 w-8 text-amber-600" />
+            </div>
+            <DialogTitle className="text-xl font-semibold text-gray-900">
+              Login Necessário
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-2">
+              Para favoritar, salvar ou comentar manhwas, você precisa estar logado. Faça login para ter acesso a todas as funcionalidades!
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-6">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowLoginModal(false)}
+            >
+              Continuar Navegando
+            </Button>
+            <Button
+              className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+              onClick={() => {
+                setShowLoginModal(false);
+                onNavigate?.('auth');
+              }}
+            >
+              Fazer Login
             </Button>
           </div>
         </DialogContent>
