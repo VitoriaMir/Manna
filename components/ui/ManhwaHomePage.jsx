@@ -563,15 +563,34 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
               </div>
               
               <nav className="hidden md:flex items-center space-x-6">
-                {['Página Inicial', '📚 Biblioteca', 'Capítulos', 'Telegram'].map((item) => (
-                  <Button 
-                    key={item}
-                    variant="ghost" 
-                    className="text-white hover:text-amber-400 hover:bg-white/10 transition-all duration-300 font-medium"
-                  >
-                    {item}
-                  </Button>
-                ))}
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-amber-400 hover:bg-white/10 transition-all duration-300 font-medium"
+                  onClick={() => onNavigate?.('home')}
+                >
+                  Página Inicial
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-amber-400 hover:bg-white/10 transition-all duration-300 font-medium"
+                  onClick={() => onNavigate?.('biblioteca')}
+                >
+                  📚 Biblioteca
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-amber-400 hover:bg-white/10 transition-all duration-300 font-medium"
+                  onClick={() => onNavigate?.('ultimos-lancamentos')}
+                >
+                  Capítulos
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-amber-400 hover:bg-white/10 transition-all duration-300 font-medium"
+                  onClick={() => window.open('https://t.me/+vETXhLcv_70wOGMx', '_blank')}
+                >
+                  Telegram
+                </Button>
               </nav>
             </div>
 

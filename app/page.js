@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -61,6 +62,7 @@ import { useAuth } from '@/components/providers/CustomAuthProvider'
 import { useTheme } from 'next-themes'
 
 export default function App() {
+    const router = useRouter()
     const { user, isLoading } = useUser()
     const { logout } = useAuth()
     const [currentView, setCurrentView] = useState('home')
@@ -1399,7 +1401,14 @@ export default function App() {
         return (
             <ManhwaHomePage
                 onNavigate={(view, data) => {
-                    if (view === 'reader' && data) {
+                    // Navegação para páginas específicas
+                    if (view === 'home') {
+                        router.push('/');
+                    } else if (view === 'biblioteca') {
+                        router.push('/biblioteca');
+                    } else if (view === 'ultimos-lancamentos') {
+                        router.push('/ultimos-lancamentos');
+                    } else if (view === 'reader' && data) {
                         setCurrentManhwa(data);
                         setCurrentChapter(0);
                         setCurrentView('reader');
