@@ -104,6 +104,29 @@ export async function GET(request) {
         const creatorId = searchParams.get('creatorId')
         const manhwaId = searchParams.get('manhwaId')
 
+        // Check if MongoDB is configured
+        if (!process.env.MONGO_URL) {
+            console.log('MongoDB not configured, returning mock data')
+            // Return mock data for development
+            return handleCORS(NextResponse.json({
+                content: [{
+                    _id: 'mock-id-1',
+                    title: 'Exemplo de Série',
+                    description: 'Uma série de exemplo para desenvolvimento',
+                    author: 'Autor Exemplo',
+                    type: 'series',
+                    status: 'published',
+                    cover: '/images/manhwas/default-cover.jpg',
+                    genre: ['Romance', 'Drama'],
+                    tags: ['exemplo'],
+                    creatorId: user.sub,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }],
+                total: 1
+            }))
+        }
+
         const db = await connectToMongo()
 
         // Build query
@@ -191,7 +214,7 @@ export async function POST(request) {
         }
 
         const body = await request.json()
-        const { type, manhwaId, chapterId, title, description, pages, metadata } = body
+        const { type, manhwaId, chapterId, title, description, author, pages, metadata, coverImage } = body
 
         // Validate required fields
         if (!type || !title) {
@@ -208,10 +231,12 @@ export async function POST(request) {
             type, // 'manhwa', 'chapter', 'page'
             title,
             description: description || '',
+            author: author || 'Autor Desconhecido',
             manhwaId: manhwaId || null,
             chapterId: chapterId || null,
             pages: pages || [],
             metadata: metadata || {},
+            coverImage: coverImage || null, // Add cover image field
             status: ContentStatus.DRAFT,
             creatorId: user.sub,
             creatorName: user.name,
@@ -264,7 +289,7 @@ export async function PUT(request) {
         const { user } = authResult
 
         const body = await request.json()
-        const { id, title, description, pages, metadata, status } = body
+        const { id, title, description, author, pages, metadata, status, coverImage } = body
 
         if (!id) {
             return handleCORS(NextResponse.json(
@@ -306,7 +331,9 @@ export async function PUT(request) {
 
             if (title) updateData.title = title
             if (description !== undefined) updateData.description = description
+            if (author !== undefined) updateData.author = author
             if (pages) updateData.pages = pages
+            if (coverImage !== undefined) updateData.coverImage = coverImage
             if (metadata) {
                 updateData.metadata = { ...existingContent.metadata, ...metadata }
                 updateData.tags = metadata.tags || existingContent.tags || []

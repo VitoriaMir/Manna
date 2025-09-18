@@ -80,5 +80,5 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
-public/uploads/avatars/
 public/uploads/
+public/images/
