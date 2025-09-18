@@ -235,10 +235,10 @@ const Notification = ({ type, message, onClose }) => {
     );
 };
 
-export function AuthPage({ onNavigate, onLogin, onRegister }) {
+export function AuthPage({ onNavigate, onLogin, onRegister, creatorMode = false }) {
     const router = useRouter();
     const { login: authLogin, register: authRegister } = useAuth();
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState(!creatorMode); // Se for creator mode, vai direto para registro
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -403,7 +403,9 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                     password: formData.password,
                     username: formData.username,
                     firstName: formData.firstName,
-                    lastName: formData.lastName
+                    lastName: formData.lastName,
+                    // Definir role como creator se estiver no modo creator
+                    ...(creatorMode && { role: 'creator' })
                 };
 
                 const result = await authRegister(userData);
@@ -543,12 +545,19 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                         {/* Form header */}
                         <div className="text-center space-y-4">
                             <h2 className="text-4xl font-black text-white">
-                                {isLogin ? 'Entrar' : 'Criar Conta'}
+                                {isLogin 
+                                    ? 'Entrar' 
+                                    : creatorMode 
+                                        ? 'Criar Conta Creator' 
+                                        : 'Criar Conta'
+                                }
                             </h2>
                             <p className="text-slate-400 text-lg">
                                 {isLogin
                                     ? 'Faça login para continuar sua aventura'
-                                    : 'Crie sua conta e comece a explorar'
+                                    : creatorMode
+                                        ? 'Crie sua conta Creator e comece a publicar suas obras'
+                                        : 'Crie sua conta e comece a explorar'
                                 }
                             </p>
                         </div>
@@ -856,7 +865,14 @@ export function AuthPage({ onNavigate, onLogin, onRegister }) {
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-center space-x-3 relative z-10">
-                                        <span>{isLogin ? 'Entrar na MANNA' : 'Criar minha conta'}</span>
+                                        <span>
+                                            {isLogin 
+                                                ? 'Entrar na MANNA' 
+                                                : creatorMode 
+                                                    ? 'Criar conta Creator' 
+                                                    : 'Criar minha conta'
+                                            }
+                                        </span>
                                         <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 )}

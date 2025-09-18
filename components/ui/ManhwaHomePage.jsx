@@ -30,7 +30,8 @@ import {
   Share2,
   Download,
   Plus,
-  LogOut
+  LogOut,
+  Upload
 } from 'lucide-react';
 
 // Enhanced sample data with more realistic content
@@ -610,6 +611,18 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
               
               {currentUser ? (
                 <div className="flex items-center space-x-3">
+                  {/* Mostrar botão Creator apenas se o usuário for creator */}
+                  {currentUser?.roles?.includes('creator') && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => onNavigate?.('creator-dashboard')}
+                      className="text-white hover:text-amber-400 hover:bg-white/10 transition-all duration-300 font-medium flex items-center gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
+                      Creator
+                    </Button>
+                  )}
                   <Button variant="ghost" size="sm" className="text-white hover:text-amber-400 hover:bg-white/10 p-3 rounded-xl transition-all duration-300">
                     <Bell className="h-5 w-5" />
                   </Button>
@@ -627,7 +640,16 @@ export function ManhwaHomePage({ onNavigate, onShowProfile, currentUser }) {
                   </Button>
                 </div>
               ) : (
-                <AuthStatus onNavigate={onNavigate} />
+                <div className="flex items-center space-x-3">
+                  <Button 
+                    onClick={() => onNavigate?.('auth-creator')}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Criar Creator
+                  </Button>
+                  <AuthStatus onNavigate={onNavigate} />
+                </div>
               )}
               
               <Button 

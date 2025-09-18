@@ -1354,6 +1354,23 @@ export default function App() {
         );
     }
 
+    if (currentView === 'auth-creator') {
+        return (
+            <AuthPage
+                creatorMode={true}
+                onNavigate={(view) => setCurrentView(view)}
+                onLogin={(userData) => {
+                    console.log('Creator logged in:', userData);
+                    setCurrentView('creator-dashboard');
+                }}
+                onRegister={(userData) => {
+                    console.log('Creator registered:', userData);
+                    setCurrentView('auth-creator'); // Keep on auth page for login
+                }}
+            />
+        );
+    }
+
     if (currentView === 'creator-dashboard') {
         return <CreatorDashboard />
     }
