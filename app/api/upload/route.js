@@ -118,10 +118,10 @@ async function getAuthenticatedUser(request) {
         const token = authHeader.slice(7)
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret')
-            
+
             // Garantir que roles seja um array, mesmo se não estiver no token
             const roles = decoded.roles || (decoded.role ? [decoded.role] : [])
-            
+
             return {
                 user: {
                     sub: decoded.userId || decoded.sub,
@@ -151,7 +151,7 @@ export async function POST(request) {
         console.log('Attempting to get authenticated user...')
         const authResult = await getAuthenticatedUser(request)
         console.log('Auth result:', authResult ? `User found via ${authResult.source}` : 'No user found')
-        
+
         if (!authResult?.user) {
             console.log('Authentication failed - no user found')
             return NextResponse.json(

@@ -17,7 +17,7 @@ async function connectToMongo() {
 export async function POST(request) {
     try {
         await connectToMongo();
-        
+
         // Atualizar todos os usuários para ter o campo roles
         const result = await db.collection('users').updateMany(
             { roles: { $exists: false } },
@@ -29,14 +29,14 @@ export async function POST(request) {
                 }
             ]
         );
-        
+
         console.log(`Updated ${result.modifiedCount} users with roles field`);
-        
+
         return NextResponse.json({
             message: `Updated ${result.modifiedCount} users`,
             success: true
         });
-        
+
     } catch (error) {
         console.error('Update error:', error);
         return NextResponse.json(

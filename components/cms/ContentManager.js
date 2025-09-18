@@ -10,14 +10,13 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { FileUploader } from './FileUploader'
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  Upload, 
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  Upload,
   FileText,
   Clock,
   CheckCircle,
@@ -99,12 +98,12 @@ export function ContentManager({ user }) {
     if (typeof window !== 'undefined' && (formData.title || formData.description || formData.pages.length > 0)) {
       localStorage.setItem('manna_draft_content', JSON.stringify(formData))
       setAutoSaveStatus('Rascunho salvo automaticamente')
-      
+
       // Limpar mensagem após 2 segundos
       const timer = setTimeout(() => {
         setAutoSaveStatus('')
       }, 2000)
-      
+
       return () => clearTimeout(timer)
     }
   }, [formData])
@@ -116,7 +115,7 @@ export function ContentManager({ user }) {
       'Content-Type': 'application/json',
       ...options.headers
     }
-    
+
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
     }
@@ -140,7 +139,7 @@ export function ContentManager({ user }) {
         headers: {} // GET requests don't need Content-Type
       })
       const data = await response.json()
-      
+
       if (data.content) {
         setContent(data.content)
       }
@@ -263,10 +262,10 @@ export function ContentManager({ user }) {
 
   const filteredContent = useMemo(() => {
     return content.filter(item => {
-      const matchesSearch = !searchQuery || 
+      const matchesSearch = !searchQuery ||
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase())
-      
+
       return matchesSearch
     })
   }, [content, searchQuery])
@@ -358,8 +357,8 @@ export function ContentManager({ user }) {
                     <Label>Tags (separadas por vírgula)</Label>
                     <Input
                       value={formData.tags.join(', ')}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
                         tags: e.target.value.split(',').map(t => t.trim()).filter(t => t)
                       }))}
                       placeholder="ação, aventura, romance"
@@ -370,8 +369,8 @@ export function ContentManager({ user }) {
                     <Label>Gêneros (separados por vírgula)</Label>
                     <Input
                       value={formData.genre.join(', ')}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
                         genre: e.target.value.split(',').map(g => g.trim()).filter(g => g)
                       }))}
                       placeholder="manhwa, webtoon, drama"
@@ -384,7 +383,7 @@ export function ContentManager({ user }) {
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Upload de Páginas</h3>
                   <FileUploader onFilesUploaded={handleFilesUploaded} />
-                  
+
                   {formData.pages.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-2">Páginas Adicionadas ({formData.pages.length})</h4>
@@ -435,7 +434,7 @@ export function ContentManager({ user }) {
                     <CardContent className="p-4">
                       <h4 className="font-semibold text-lg">{formData.title || 'Título do conteúdo'}</h4>
                       <p className="text-muted-foreground mb-2">{formData.description || 'Descrição do conteúdo'}</p>
-                      
+
                       {formData.tags.length > 0 && (
                         <div className="flex gap-1 mb-2">
                           {formData.tags.map(tag => (
@@ -443,7 +442,7 @@ export function ContentManager({ user }) {
                           ))}
                         </div>
                       )}
-                      
+
                       <p className="text-sm text-muted-foreground">
                         {formData.pages.length} páginas • Status: Rascunho
                       </p>
@@ -457,7 +456,7 @@ export function ContentManager({ user }) {
               <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                 Cancelar
               </Button>
-              <Button 
+              <Button
                 onClick={handleCreateContent}
                 disabled={!formData.title || formData.pages.length === 0}
               >
@@ -525,8 +524,8 @@ export function ContentManager({ user }) {
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-semibold mb-2">Nenhum conteúdo encontrado</h3>
               <p className="text-muted-foreground">
-                {content.length === 0 
-                  ? 'Comece criando seu primeiro conteúdo' 
+                {content.length === 0
+                  ? 'Comece criando seu primeiro conteúdo'
                   : 'Tente ajustar os filtros ou criar novo conteúdo'
                 }
               </p>
@@ -549,9 +548,9 @@ export function ContentManager({ user }) {
                           {statusConfig.label}
                         </Badge>
                       </div>
-                      
+
                       <p className="text-muted-foreground">{item.description}</p>
-                      
+
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>{item.pages?.length || 0} páginas</span>
                         <span>Criado em {new Date(item.createdAt).toLocaleDateString()}</span>
@@ -559,7 +558,7 @@ export function ContentManager({ user }) {
                           <span>Publicado em {new Date(item.publishedAt).toLocaleDateString()}</span>
                         )}
                       </div>
-                      
+
                       {item.tags && item.tags.length > 0 && (
                         <div className="flex gap-1">
                           {item.tags.slice(0, 3).map(tag => (
@@ -587,27 +586,27 @@ export function ContentManager({ user }) {
                           Enviar para Revisão
                         </Button>
                       )}
-                      
-                      <Button 
-                        size="sm" 
+
+                      <Button
+                        size="sm"
                         variant="ghost"
                         onClick={() => handleViewContent(item)}
                         title="Visualizar"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      
-                      <Button 
-                        size="sm" 
+
+                      <Button
+                        size="sm"
                         variant="ghost"
                         onClick={() => handleEditContent(item)}
                         title="Editar"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      
-                      <Button 
-                        size="sm" 
+
+                      <Button
+                        size="sm"
                         variant="ghost"
                         onClick={() => handleDeleteContent(item.id)}
                         title="Deletar"
@@ -622,7 +621,7 @@ export function ContentManager({ user }) {
           })
         )}
       </div>
-      
+
       {/* Dialog de Preview */}
       <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -632,14 +631,14 @@ export function ContentManager({ user }) {
               Preview do conteúdo selecionado
             </DialogDescription>
           </DialogHeader>
-          
+
           {previewContent && (
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold">{previewContent.title}</h3>
                 <p className="text-muted-foreground">{previewContent.description}</p>
               </div>
-              
+
               <div className="flex items-center gap-4 text-sm">
                 <Badge className={`${StatusConfig[previewContent.status]?.color || 'bg-gray-500'} text-white`}>
                   {StatusConfig[previewContent.status]?.label || 'Desconhecido'}
@@ -647,7 +646,7 @@ export function ContentManager({ user }) {
                 <span>{previewContent.pages?.length || 0} páginas</span>
                 <span>Criado em {new Date(previewContent.createdAt).toLocaleDateString()}</span>
               </div>
-              
+
               {previewContent.tags && previewContent.tags.length > 0 && (
                 <div>
                   <h4 className="font-medium mb-2">Tags:</h4>
@@ -658,7 +657,7 @@ export function ContentManager({ user }) {
                   </div>
                 </div>
               )}
-              
+
               {previewContent.pages && previewContent.pages.length > 0 && (
                 <div>
                   <h4 className="font-medium mb-2">Páginas ({previewContent.pages.length}):</h4>

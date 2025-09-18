@@ -129,7 +129,7 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
     <div className="space-y-4">
       {/* Upload Area */}
       <Card className={`border-2 border-dashed transition-colors ${isDragActive ? 'border-purple-500 bg-purple-50 dark:bg-purple-950' :
-          'border-gray-300 hover:border-purple-400'
+        'border-gray-300 hover:border-purple-400'
         }`}>
         <CardContent className="p-6">
           <div {...getRootProps()} className="cursor-pointer text-center">

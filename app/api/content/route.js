@@ -49,10 +49,10 @@ async function getAuthenticatedUser(request) {
                 role: decoded.role,
                 roles: decoded.roles
             })
-            
+
             // Garantir que roles seja um array, mesmo se não estiver no token
             const roles = decoded.roles || (decoded.role ? [decoded.role] : [])
-            
+
             return {
                 user: {
                     sub: decoded.userId || decoded.sub,
@@ -172,16 +172,16 @@ export async function POST(request) {
         const { user } = authResult
         const userRoles = user.roles || []
         const userRole = user.role // Role único também
-        
+
         console.log('Auth check - User ID:', user.sub)
         console.log('Auth check - User roles array:', userRoles)
         console.log('Auth check - User role single:', userRole)
-        
+
         // Verificar se tem role creator (em array ou como role única)
         const hasCreatorRole = userRoles.includes('creator') || userRole === 'creator'
-        
+
         console.log('Auth check - Has creator role:', hasCreatorRole)
-        
+
         if (!hasCreatorRole) {
             console.log('Access denied - User roles:', userRoles, 'User role:', userRole)
             return handleCORS(NextResponse.json(
