@@ -55,7 +55,9 @@ export async function POST(request) {
             {
                 userId: user._id.toString(),
                 email: user.email,
-                role: user.role
+                role: user.role,
+                roles: user.roles || [user.role || 'user'], // Incluir roles no JWT
+                name: user.name
             },
             JWT_SECRET,
             { expiresIn: '7d' }

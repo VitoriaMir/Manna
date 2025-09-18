@@ -79,7 +79,9 @@ export async function POST(request) {
             {
                 userId: result.insertedId.toString(),
                 email: newUser.email,
-                role: newUser.role
+                role: newUser.role,
+                roles: newUser.roles, // Incluir array de roles no JWT
+                name: newUser.name
             },
             JWT_SECRET,
             { expiresIn: '7d' }

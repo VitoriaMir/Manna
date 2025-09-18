@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { MongoClient } from 'mongodb'
 import { v4 as uuidv4 } from 'uuid'
 import { getSession } from '@auth0/nextjs-auth0'
+import jwt from 'jsonwebtoken'
 
 // MongoDB connection
 let client
@@ -14,6 +15,60 @@ async function connectToMongo() {
         db = client.db(process.env.DB_NAME || 'manna_db')
     }
     return db
+}
+
+// Helper function to check authentication from multiple sources
+async function getAuthenticatedUser(request) {
+    // First try Auth0 session
+    try {
+        const session = await getSession(request)
+        if (session?.user) {
+            return {
+                user: {
+                    sub: session.user.sub,
+                    email: session.user.email,
+                    name: session.user.name,
+                    roles: session.user['https://manna-app.com/roles'] || []
+                },
+                source: 'auth0'
+            }
+        }
+    } catch (error) {
+        console.log('Auth0 session check failed:', error.message)
+    }
+
+    // Then try JWT token from Authorization header
+    const authHeader = request.headers.get('authorization')
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.slice(7)
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret')
+            console.log('JWT decoded successfully:', {
+                userId: decoded.userId,
+                email: decoded.email,
+                role: decoded.role,
+                roles: decoded.roles
+            })
+            
+            // Garantir que roles seja um array, mesmo se não estiver no token
+            const roles = decoded.roles || (decoded.role ? [decoded.role] : [])
+            
+            return {
+                user: {
+                    sub: decoded.userId || decoded.sub,
+                    email: decoded.email,
+                    name: decoded.name,
+                    role: decoded.role, // Adicionar role único também
+                    roles: roles // Usar roles corrigido
+                },
+                source: 'jwt'
+            }
+        } catch (error) {
+            console.log('JWT verification failed:', error.message)
+        }
+    }
+
+    return null
 }
 
 // Helper function for CORS
@@ -35,14 +90,15 @@ const ContentStatus = {
 // GET /api/content - Get all content with filtering
 export async function GET(request) {
     try {
-        const session = await getSession()
-        if (!session?.user) {
+        const authResult = await getAuthenticatedUser(request)
+        if (!authResult?.user) {
             return handleCORS(NextResponse.json(
                 { error: 'Authentication required' },
                 { status: 401 }
             ))
         }
 
+        const { user } = authResult
         const { searchParams } = new URL(request.url)
         const status = searchParams.get('status')
         const creatorId = searchParams.get('creatorId')
@@ -59,11 +115,11 @@ export async function GET(request) {
         }
 
         // Filter by creator (if not admin, only show own content)
-        const userRoles = session.user['https://manna-app.com/roles'] || []
+        const userRoles = user.roles || []
         const isAdmin = userRoles.includes('admin')
 
         if (!isAdmin) {
-            query.creatorId = session.user.sub
+            query.creatorId = user.sub
         } else if (creatorId) {
             query.creatorId = creatorId
         }
@@ -105,18 +161,31 @@ export async function GET(request) {
 // POST /api/content - Create new content
 export async function POST(request) {
     try {
-        const session = await getSession()
-        if (!session?.user) {
+        const authResult = await getAuthenticatedUser(request)
+        if (!authResult?.user) {
             return handleCORS(NextResponse.json(
                 { error: 'Authentication required' },
                 { status: 401 }
             ))
         }
 
-        const userRoles = session.user['https://manna-app.com/roles'] || []
-        if (!userRoles.includes('creator')) {
+        const { user } = authResult
+        const userRoles = user.roles || []
+        const userRole = user.role // Role único também
+        
+        console.log('Auth check - User ID:', user.sub)
+        console.log('Auth check - User roles array:', userRoles)
+        console.log('Auth check - User role single:', userRole)
+        
+        // Verificar se tem role creator (em array ou como role única)
+        const hasCreatorRole = userRoles.includes('creator') || userRole === 'creator'
+        
+        console.log('Auth check - Has creator role:', hasCreatorRole)
+        
+        if (!hasCreatorRole) {
+            console.log('Access denied - User roles:', userRoles, 'User role:', userRole)
             return handleCORS(NextResponse.json(
-                { error: 'Creator role required' },
+                { error: 'Creator role required', userRole, userRoles },
                 { status: 403 }
             ))
         }
@@ -144,8 +213,8 @@ export async function POST(request) {
             pages: pages || [],
             metadata: metadata || {},
             status: ContentStatus.DRAFT,
-            creatorId: session.user.sub,
-            creatorName: session.user.name,
+            creatorId: user.sub,
+            creatorName: user.name,
             createdAt: new Date(),
             updatedAt: new Date(),
             publishedAt: null,
@@ -184,13 +253,15 @@ export async function POST(request) {
 // PUT /api/content - Update content
 export async function PUT(request) {
     try {
-        const session = await getSession()
-        if (!session?.user) {
+        const authResult = await getAuthenticatedUser(request)
+        if (!authResult?.user) {
             return handleCORS(NextResponse.json(
                 { error: 'Authentication required' },
                 { status: 401 }
             ))
         }
+
+        const { user } = authResult
 
         const body = await request.json()
         const { id, title, description, pages, metadata, status } = body
@@ -216,9 +287,9 @@ export async function PUT(request) {
             }
 
             // Check permissions
-            const userRoles = session.user['https://manna-app.com/roles'] || []
+            const userRoles = user.roles || []
             const isAdmin = userRoles.includes('admin')
-            const isOwner = existingContent.creatorId === session.user.sub
+            const isOwner = existingContent.creatorId === user.sub
 
             if (!isAdmin && !isOwner) {
                 return handleCORS(NextResponse.json(
@@ -287,13 +358,15 @@ export async function PUT(request) {
 // DELETE /api/content - Delete content
 export async function DELETE(request) {
     try {
-        const session = await getSession()
-        if (!session?.user) {
+        const authResult = await getAuthenticatedUser(request)
+        if (!authResult?.user) {
             return handleCORS(NextResponse.json(
                 { error: 'Authentication required' },
                 { status: 401 }
             ))
         }
+
+        const { user } = authResult
 
         const { searchParams } = new URL(request.url)
         const contentId = searchParams.get('id')
@@ -318,9 +391,9 @@ export async function DELETE(request) {
                 ))
             }
 
-            const userRoles = session.user['https://manna-app.com/roles'] || []
+            const userRoles = user.roles || []
             const isAdmin = userRoles.includes('admin')
-            const isOwner = existingContent.creatorId === session.user.sub
+            const isOwner = existingContent.creatorId === user.sub
 
             if (!isAdmin && !isOwner) {
                 return handleCORS(NextResponse.json(

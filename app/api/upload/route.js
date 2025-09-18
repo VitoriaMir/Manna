@@ -97,26 +97,76 @@ const runMiddleware = (req, res, fn) => {
     })
 }
 
+// Helper function to check authentication from multiple sources
+async function getAuthenticatedUser(request) {
+    // First try Auth0 session
+    try {
+        const session = await getSession(request)
+        if (session?.user) {
+            return {
+                user: session.user,
+                source: 'auth0'
+            }
+        }
+    } catch (error) {
+        console.log('Auth0 session check failed:', error.message)
+    }
+
+    // Then try JWT token from Authorization header
+    const authHeader = request.headers.get('authorization')
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.slice(7)
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret')
+            
+            // Garantir que roles seja um array, mesmo se não estiver no token
+            const roles = decoded.roles || (decoded.role ? [decoded.role] : [])
+            
+            return {
+                user: {
+                    sub: decoded.userId || decoded.sub,
+                    email: decoded.email,
+                    name: decoded.name,
+                    role: decoded.role,
+                    roles: roles
+                },
+                source: 'jwt'
+            }
+        } catch (error) {
+            console.log('JWT verification failed:', error.message)
+        }
+    }
+
+    return null
+}
+
 export async function POST(request) {
     console.log('=== UPLOAD API CALLED ===')
     console.log('Request method:', request.method)
     console.log('Request headers:', [...request.headers.entries()])
+    console.log('Request URL:', request.url)
 
     try {
-        // Check authentication
-        const session = await getSession(request)
-        if (!session?.user) {
+        // Check authentication from multiple sources
+        console.log('Attempting to get authenticated user...')
+        const authResult = await getAuthenticatedUser(request)
+        console.log('Auth result:', authResult ? `User found via ${authResult.source}` : 'No user found')
+        
+        if (!authResult?.user) {
+            console.log('Authentication failed - no user found')
             return NextResponse.json(
                 { error: 'Authentication required' },
                 { status: 401 }
             )
         }
 
-        console.log('Upload - User authenticated:', session.user.sub)
-        console.log('Upload - User roles:', session.user['https://manna-app.com/roles'])
+        const { user } = authResult
+
+        console.log('Upload - User authenticated:', user.sub)
+        console.log('Upload - User roles:', user.roles)
 
         // Check if user has creator role (temporarily disabled for testing)
-        // const userRoles = session.user['https://manna-app.com/roles'] || []
+        // const userRoles = user.roles || []
         // if (!userRoles.includes('creator')) {
         //     return NextResponse.json(
         //         { error: 'Creator role required' },
@@ -149,7 +199,7 @@ export async function POST(request) {
                     const processed = await processImage(buffer, file.name, directories)
                     processedFiles.push({
                         ...processed,
-                        uploadedBy: session.user.sub,
+                        uploadedBy: user.sub,
                         uploadedAt: new Date().toISOString()
                     })
                 } catch (error) {

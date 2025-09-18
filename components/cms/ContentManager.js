@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { FileUploader } from './FileUploader'
 import { 
   Plus, 
@@ -24,7 +25,8 @@ import {
   AlertTriangle,
   Search,
   Filter,
-  MoreVertical
+  MoreVertical,
+  X
 } from 'lucide-react'
 
 const ContentStatus = {
@@ -63,24 +65,70 @@ export function ContentManager({ user }) {
   const [filter, setFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false)
+  const [previewContent, setPreviewContent] = useState(null)
   const [editingContent, setEditingContent] = useState(null)
+  const [autoSaveStatus, setAutoSaveStatus] = useState('')
 
   // Form state
-  const [formData, setFormData] = useState({
-    type: 'chapter',
-    title: '',
-    description: '',
-    manhwaId: '',
-    pages: [],
-    tags: [],
-    genre: []
+  const [formData, setFormData] = useState(() => {
+    // Tentar carregar dados salvos do localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('manna_draft_content')
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch (e) {
+          console.log('Erro ao carregar rascunho salvo:', e)
+        }
+      }
+    }
+    return {
+      type: 'chapter',
+      title: '',
+      description: '',
+      manhwaId: '',
+      pages: [],
+      tags: [],
+      genre: []
+    }
   })
 
+  // Auto-save effect - salva no localStorage quando formData muda
   useEffect(() => {
-    loadContent()
-  }, [filter])
+    if (typeof window !== 'undefined' && (formData.title || formData.description || formData.pages.length > 0)) {
+      localStorage.setItem('manna_draft_content', JSON.stringify(formData))
+      setAutoSaveStatus('Rascunho salvo automaticamente')
+      
+      // Limpar mensagem após 2 segundos
+      const timer = setTimeout(() => {
+        setAutoSaveStatus('')
+      }, 2000)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [formData])
 
-  const loadContent = async () => {
+  // Helper function to make authenticated requests
+  const makeAuthenticatedRequest = useCallback(async (url, options = {}) => {
+    const token = localStorage.getItem('manna_auth_token')
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers
+    }
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
+    return fetch(url, {
+      credentials: 'include',
+      ...options,
+      headers
+    })
+  }, [])
+
+  const loadContent = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -88,7 +136,9 @@ export function ContentManager({ user }) {
         params.append('status', filter)
       }
 
-      const response = await fetch(`/api/content?${params}`)
+      const response = await makeAuthenticatedRequest(`/api/content?${params}`, {
+        headers: {} // GET requests don't need Content-Type
+      })
       const data = await response.json()
       
       if (data.content) {
@@ -99,15 +149,16 @@ export function ContentManager({ user }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter, makeAuthenticatedRequest])
 
-  const handleCreateContent = async () => {
+  useEffect(() => {
+    loadContent()
+  }, [loadContent])
+
+  const handleCreateContent = useCallback(async () => {
     try {
-      const response = await fetch('/api/content', {
+      const response = await makeAuthenticatedRequest('/api/content', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           ...formData,
           metadata: {
@@ -129,15 +180,12 @@ export function ContentManager({ user }) {
     } catch (error) {
       console.error('Error creating content:', error)
     }
-  }
+  }, [formData, makeAuthenticatedRequest])
 
-  const handleUpdateContent = async (contentId, updates) => {
+  const handleUpdateContent = useCallback(async (contentId, updates) => {
     try {
-      const response = await fetch('/api/content', {
+      const response = await makeAuthenticatedRequest('/api/content', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           id: contentId,
           ...updates
@@ -151,14 +199,15 @@ export function ContentManager({ user }) {
     } catch (error) {
       console.error('Error updating content:', error)
     }
-  }
+  }, [makeAuthenticatedRequest])
 
-  const handleDeleteContent = async (contentId) => {
+  const handleDeleteContent = useCallback(async (contentId) => {
     if (!confirm('Tem certeza que deseja excluir este conteúdo?')) return
 
     try {
-      const response = await fetch(`/api/content?id=${contentId}`, {
-        method: 'DELETE'
+      const response = await makeAuthenticatedRequest(`/api/content?id=${contentId}`, {
+        method: 'DELETE',
+        headers: {} // DELETE requests don't need Content-Type
       })
 
       if (response.ok) {
@@ -167,16 +216,16 @@ export function ContentManager({ user }) {
     } catch (error) {
       console.error('Error deleting content:', error)
     }
-  }
+  }, [makeAuthenticatedRequest])
 
-  const handleFilesUploaded = (uploadedFiles) => {
+  const handleFilesUploaded = useCallback((uploadedFiles) => {
     setFormData(prev => ({
       ...prev,
       pages: [...prev.pages, ...uploadedFiles]
     }))
-  }
+  }, [])
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       type: 'chapter',
       title: '',
@@ -187,17 +236,42 @@ export function ContentManager({ user }) {
       genre: []
     })
     setEditingContent(null)
-  }
+    // Limpar rascunho salvo
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('manna_draft_content')
+    }
+  }, [])
 
-  const filteredContent = content.filter(item => {
-    const matchesSearch = !searchQuery || 
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase())
-    
-    return matchesSearch
-  })
+  const handleViewContent = useCallback((content) => {
+    setPreviewContent(content)
+    setShowPreviewDialog(true)
+  }, [])
 
-  const getStatusCounts = () => {
+  const handleEditContent = useCallback((content) => {
+    setFormData({
+      type: content.type || 'chapter',
+      title: content.title || '',
+      description: content.description || '',
+      manhwaId: content.manhwaId || '',
+      pages: content.pages || [],
+      tags: content.tags || [],
+      genre: content.genre || []
+    })
+    setEditingContent(content)
+    setShowCreateDialog(true)
+  }, [])
+
+  const filteredContent = useMemo(() => {
+    return content.filter(item => {
+      const matchesSearch = !searchQuery || 
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      
+      return matchesSearch
+    })
+  }, [content, searchQuery])
+
+  const getStatusCounts = useMemo(() => {
     return {
       all: content.length,
       draft: content.filter(c => c.status === ContentStatus.DRAFT).length,
@@ -205,9 +279,9 @@ export function ContentManager({ user }) {
       published: content.filter(c => c.status === ContentStatus.PUBLISHED).length,
       archived: content.filter(c => c.status === ContentStatus.ARCHIVED).length
     }
-  }
+  }, [content])
 
-  const statusCounts = getStatusCounts()
+  const statusCounts = getStatusCounts
 
   return (
     <div className="space-y-6">
@@ -221,12 +295,18 @@ export function ContentManager({ user }) {
               Novo Conteúdo
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Criar Novo Conteúdo</DialogTitle>
               <DialogDescription>
                 Adicione um novo capítulo ou série à plataforma
               </DialogDescription>
+              {autoSaveStatus && (
+                <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-2 rounded-md">
+                  <CheckCircle className="h-4 w-4" />
+                  {autoSaveStatus}
+                </div>
+              )}
             </DialogHeader>
 
             <Tabs defaultValue="info" className="space-y-4">
@@ -308,30 +388,40 @@ export function ContentManager({ user }) {
                   {formData.pages.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-2">Páginas Adicionadas ({formData.pages.length})</h4>
-                      <div className="grid grid-cols-6 gap-2">
-                        {formData.pages.map((page, index) => (
-                          <div key={index} className="relative group">
-                            <img
-                              src={page.thumbnail}
-                              alt={`Página ${index + 1}`}
-                              className="w-full aspect-[3/4] object-cover rounded border"
-                            />
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => setFormData(prev => ({
-                                ...prev,
-                                pages: prev.pages.filter((_, i) => i !== index)
-                              }))}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                            <span className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-1 rounded">
-                              {index + 1}
-                            </span>
-                          </div>
-                        ))}
+                      {formData.pages.length > 20 && (
+                        <p className="text-sm text-blue-600 mb-2 flex items-center">
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                          </svg>
+                          Role para baixo para ver todas as páginas
+                        </p>
+                      )}
+                      <div className="h-[400px] w-full border rounded-md bg-gray-50/50 overflow-y-auto overflow-x-hidden scroll-smooth">
+                        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 p-4">
+                          {formData.pages.map((page, index) => (
+                            <div key={index} className="relative group">
+                              <img
+                                src={page.thumbnail}
+                                alt={`Página ${index + 1}`}
+                                className="w-full aspect-[3/4] object-cover rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md"
+                              />
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0 rounded-full shadow-lg"
+                                onClick={() => setFormData(prev => ({
+                                  ...prev,
+                                  pages: prev.pages.filter((_, i) => i !== index)
+                                }))}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                              <span className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                {index + 1}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -498,11 +588,21 @@ export function ContentManager({ user }) {
                         </Button>
                       )}
                       
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => handleViewContent(item)}
+                        title="Visualizar"
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                       
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => handleEditContent(item)}
+                        title="Editar"
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       
@@ -510,6 +610,7 @@ export function ContentManager({ user }) {
                         size="sm" 
                         variant="ghost"
                         onClick={() => handleDeleteContent(item.id)}
+                        title="Deletar"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -521,6 +622,68 @@ export function ContentManager({ user }) {
           })
         )}
       </div>
+      
+      {/* Dialog de Preview */}
+      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Visualizar Conteúdo</DialogTitle>
+            <DialogDescription>
+              Preview do conteúdo selecionado
+            </DialogDescription>
+          </DialogHeader>
+          
+          {previewContent && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold">{previewContent.title}</h3>
+                <p className="text-muted-foreground">{previewContent.description}</p>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm">
+                <Badge className={`${StatusConfig[previewContent.status]?.color || 'bg-gray-500'} text-white`}>
+                  {StatusConfig[previewContent.status]?.label || 'Desconhecido'}
+                </Badge>
+                <span>{previewContent.pages?.length || 0} páginas</span>
+                <span>Criado em {new Date(previewContent.createdAt).toLocaleDateString()}</span>
+              </div>
+              
+              {previewContent.tags && previewContent.tags.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-2">Tags:</h4>
+                  <div className="flex gap-1 flex-wrap">
+                    {previewContent.tags.map(tag => (
+                      <Badge key={tag} variant="outline">{tag}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {previewContent.pages && previewContent.pages.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-2">Páginas ({previewContent.pages.length}):</h4>
+                  <div className="h-[400px] w-full border rounded-md bg-gray-50/50 overflow-y-auto overflow-x-hidden">
+                    <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 p-4">
+                      {previewContent.pages.map((page, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={page.thumbnail}
+                            alt={`Página ${index + 1}`}
+                            className="w-full aspect-[3/4] object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+                          />
+                          <span className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                            {index + 1}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

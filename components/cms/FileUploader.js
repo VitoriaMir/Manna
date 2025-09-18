@@ -63,9 +63,18 @@ export function FileUploader({ onFilesUploaded, maxFiles = 10, accept = 'image/*
       // Update files status to uploading
       setFiles(prev => prev.map(f => ({ ...f, status: 'uploading' })))
 
+      // Get auth token for request
+      const token = localStorage.getItem('manna_auth_token')
+      const headers = {}
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
+        credentials: 'include', // Include cookies for authentication
+        headers
       })
 
       console.log('Upload response status:', response.status)

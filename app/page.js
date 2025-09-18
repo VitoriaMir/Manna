@@ -53,7 +53,12 @@ import {
     Filter,
     SlidersHorizontal,
     Star,
-    LogOut
+    LogOut,
+    Award,
+    Users,
+    DollarSign,
+    Bell,
+    Shield
 } from 'lucide-react'
 import { AuthStatus } from '@/components/auth/AuthButtons'
 import { RoleGuard } from '@/components/auth/RoleGuard'
@@ -618,159 +623,203 @@ export default function App() {
         const [activeTab, setActiveTab] = useState('overview')
 
         return (
-            <div className="min-h-screen bg-background">
-                {/* Creator Header */}
-                <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b">
-                    <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <LogoIcon />
-                            <div>
-                                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent">
-                                    Manna Creator Studio
-                                </h1>
-                                <p className="text-sm text-muted-foreground">Sistema de Gerenciamento de Conteúdo</p>
-                            </div>
-                        </div>
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+                {/* Background Effects */}
+                <div className="fixed inset-0 z-0">
+                    <div className="absolute top-0 left-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+                    <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+                </div>
 
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                    setIsCreatorMode(false)
-                                    setCurrentView('home')
-                                }}
-                            >
-                                Ver Site
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            >
-                                {mounted && theme === 'dark' ?
-                                    <Sun className="h-4 w-4" /> :
-                                    <Moon className="h-4 w-4" />
-                                }
-                            </Button>
-                            <Avatar className="h-8 w-8">
-                                <AvatarImage src={user?.picture} alt={user?.name} />
-                                <AvatarFallback>
-                                    {user?.name?.charAt(0).toUpperCase() || 'C'}
-                                </AvatarFallback>
-                            </Avatar>
+                {/* Enhanced Creator Header */}
+                <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-amber-500/20 shadow-2xl">
+                    <div className="container mx-auto px-6 py-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex items-center space-x-3 group">
+                                    <div className="relative">
+                                        <LogoIcon className="text-amber-400 group-hover:text-amber-300 transition-colors duration-300 transform group-hover:scale-110 h-10 w-10" />
+                                        <div className="absolute -inset-2 bg-amber-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">
+                                            Manna Creator Studio
+                                        </h1>
+                                        <p className="text-slate-400 text-sm font-medium">Sistema de Gerenciamento de Conteúdo</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center space-x-3">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        setIsCreatorMode(false)
+                                        setCurrentView('home')
+                                    }}
+                                    className="text-white hover:text-amber-400 border-white/30 hover:border-amber-400 bg-transparent hover:bg-amber-500/10 transition-all duration-300"
+                                >
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    Ver Site
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </header>
 
-                <div className="container mx-auto px-4 py-6">
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                        <TabsList className="grid w-full grid-cols-4">
-                            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-                            <TabsTrigger value="content">Gerenciar Conteúdo</TabsTrigger>
-                            <TabsTrigger value="analytics">Análises</TabsTrigger>
-                            <TabsTrigger value="settings">Configurações</TabsTrigger>
+                <div className="relative z-10 container mx-auto px-6 py-8">
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+                        <TabsList className="grid w-full grid-cols-4 bg-black/40 backdrop-blur-sm border border-amber-500/20 rounded-xl p-1">
+                            <TabsTrigger
+                                value="overview"
+                                className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-black font-medium transition-all duration-300"
+                            >
+                                Visão Geral
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="content"
+                                className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-black font-medium transition-all duration-300"
+                            >
+                                Gerenciar Conteúdo
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="analytics"
+                                className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-black font-medium transition-all duration-300"
+                            >
+                                Análises
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="settings"
+                                className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-black font-medium transition-all duration-300"
+                            >
+                                Configurações
+                            </TabsTrigger>
                         </TabsList>
 
                         {/* Overview Tab */}
                         <TabsContent value="overview">
-                            <div className="space-y-6">
+                            <div className="space-y-8">
                                 {/* Stats Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    <Card>
-                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                            <CardTitle className="text-sm font-medium">Total de Séries</CardTitle>
-                                            <Book className="h-4 w-4 text-muted-foreground" />
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <Card className="bg-black/40 backdrop-blur-sm border border-amber-500/20 hover:border-amber-500/40 transition-all duration-300 group">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                                            <CardTitle className="text-sm font-medium text-white">Total de Séries</CardTitle>
+                                            <Book className="h-5 w-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
                                         </CardHeader>
                                         <CardContent>
-                                            <div className="text-2xl font-bold">{manhwas.length}</div>
-                                            <p className="text-xs text-muted-foreground">
+                                            <div className="text-3xl font-bold text-white">{manhwas.length}</div>
+                                            <p className="text-xs text-emerald-400 flex items-center gap-1 mt-2">
+                                                <span className="text-emerald-400">↗</span>
                                                 +2 desde o mês passado
                                             </p>
                                         </CardContent>
                                     </Card>
 
-                                    <Card>
-                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                            <CardTitle className="text-sm font-medium">Total de Visualizações</CardTitle>
-                                            <Eye className="h-4 w-4 text-muted-foreground" />
+                                    <Card className="bg-black/40 backdrop-blur-sm border border-amber-500/20 hover:border-amber-500/40 transition-all duration-300 group">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                                            <CardTitle className="text-sm font-medium text-white">Total de Visualizações</CardTitle>
+                                            <Eye className="h-5 w-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
                                         </CardHeader>
                                         <CardContent>
-                                            <div className="text-2xl font-bold">
+                                            <div className="text-3xl font-bold text-white">
                                                 {manhwas.reduce((total, manhwa) => total + manhwa.views, 0).toLocaleString()}
                                             </div>
-                                            <p className="text-xs text-muted-foreground">
+                                            <p className="text-xs text-emerald-400 flex items-center gap-1 mt-2">
+                                                <span className="text-emerald-400">↗</span>
                                                 +15% desde o mês passado
                                             </p>
                                         </CardContent>
                                     </Card>
 
-                                    <Card>
-                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                            <CardTitle className="text-sm font-medium">Capítulos Publicados</CardTitle>
-                                            <FileText className="h-4 w-4 text-muted-foreground" />
+                                    <Card className="bg-black/40 backdrop-blur-sm border border-amber-500/20 hover:border-amber-500/40 transition-all duration-300 group">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                                            <CardTitle className="text-sm font-medium text-white">Capítulos Publicados</CardTitle>
+                                            <FileText className="h-5 w-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
                                         </CardHeader>
                                         <CardContent>
-                                            <div className="text-2xl font-bold">
+                                            <div className="text-3xl font-bold text-white">
                                                 {manhwas.reduce((total, manhwa) => total + manhwa.chapters.length, 0)}
                                             </div>
-                                            <p className="text-xs text-muted-foreground">
+                                            <p className="text-xs text-emerald-400 flex items-center gap-1 mt-2">
+                                                <span className="text-emerald-400">↗</span>
                                                 +3 esta semana
                                             </p>
                                         </CardContent>
                                     </Card>
 
-                                    <Card>
-                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                            <CardTitle className="text-sm font-medium">Avaliação Média</CardTitle>
-                                            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                                    <Card className="bg-black/40 backdrop-blur-sm border border-amber-500/20 hover:border-amber-500/40 transition-all duration-300 group">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                                            <CardTitle className="text-sm font-medium text-white">Avaliação Média</CardTitle>
+                                            <BarChart3 className="h-5 w-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
                                         </CardHeader>
                                         <CardContent>
-                                            <div className="text-2xl font-bold">
+                                            <div className="text-3xl font-bold text-white">
                                                 {manhwas.length > 0 ?
                                                     (manhwas.reduce((total, manhwa) => total + manhwa.rating, 0) / manhwas.length).toFixed(1)
                                                     : '0.0'
                                                 }
                                             </div>
-                                            <p className="text-xs text-muted-foreground">
-                                                ⭐ Excelente
+                                            <p className="text-xs text-amber-400 flex items-center gap-1 mt-2">
+                                                <span>⭐</span>
+                                                Excelente performance
                                             </p>
                                         </CardContent>
                                     </Card>
                                 </div>
 
                                 {/* Recent Activity */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Suas Séries Ativas</CardTitle>
+                                <Card className="bg-black/40 backdrop-blur-sm border border-amber-500/20">
+                                    <CardHeader className="border-b border-amber-500/20">
+                                        <CardTitle className="text-white flex items-center gap-2">
+                                            <Award className="h-5 w-5 text-amber-400" />
+                                            Suas Séries Ativas
+                                        </CardTitle>
                                     </CardHeader>
-                                    <CardContent>
+                                    <CardContent className="p-6">
                                         <div className="space-y-4">
                                             {manhwas.slice(0, 3).map((manhwa) => (
-                                                <div key={manhwa.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                                                <div key={manhwa.id} className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 group">
                                                     <img
                                                         src={manhwa.cover}
                                                         alt={manhwa.title}
-                                                        className="w-16 h-20 object-cover rounded"
+                                                        className="w-16 h-20 object-cover rounded-lg ring-2 ring-amber-500/30 group-hover:ring-amber-500/50 transition-all"
                                                     />
                                                     <div className="flex-1">
-                                                        <h3 className="font-semibold">{manhwa.title}</h3>
-                                                        <p className="text-sm text-muted-foreground">{manhwa.description}</p>
-                                                        <div className="flex items-center gap-4 mt-2">
-                                                            <span className="text-sm">{manhwa.chapters.length} capítulos</span>
-                                                            <span className="text-sm">{manhwa.views.toLocaleString()} visualizações</span>
-                                                            <Badge variant={manhwa.status === 'Ongoing' ? 'default' : 'secondary'}>
+                                                        <h3 className="font-semibold text-white group-hover:text-amber-300 transition-colors">{manhwa.title}</h3>
+                                                        <p className="text-sm text-slate-400 line-clamp-2">{manhwa.description}</p>
+                                                        <div className="flex items-center gap-4 mt-3">
+                                                            <span className="text-sm text-amber-400 flex items-center gap-1">
+                                                                <FileText className="h-3 w-3" />
+                                                                {manhwa.chapters.length} capítulos
+                                                            </span>
+                                                            <span className="text-sm text-emerald-400 flex items-center gap-1">
+                                                                <Eye className="h-3 w-3" />
+                                                                {manhwa.views.toLocaleString()} visualizações
+                                                            </span>
+                                                            <Badge
+                                                                variant={manhwa.status === 'Ongoing' ? 'default' : 'secondary'}
+                                                                className={manhwa.status === 'Ongoing'
+                                                                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                                                    : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                                                                }
+                                                            >
                                                                 {manhwa.status === 'Ongoing' ? 'Em Andamento' : 'Completa'}
                                                             </Badge>
                                                         </div>
                                                     </div>
                                                     <div className="flex gap-2">
-                                                        <Button size="sm" variant="outline">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className="text-white border-amber-500/30 hover:border-amber-500 hover:bg-amber-500/10 transition-all duration-300"
+                                                        >
                                                             <Edit3 className="h-4 w-4 mr-2" />
                                                             Editar
                                                         </Button>
                                                         <Button
                                                             size="sm"
+                                                            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-medium transition-all duration-300"
                                                             onClick={() => {
                                                                 setCurrentManhwa(manhwa)
                                                                 setCurrentChapter(0)
@@ -785,13 +834,19 @@ export default function App() {
                                             ))}
 
                                             {manhwas.length === 0 && (
-                                                <div className="text-center py-8">
-                                                    <Book className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                                    <h3 className="font-semibold mb-2">Nenhuma série criada ainda</h3>
-                                                    <p className="text-muted-foreground mb-4">
-                                                        Use a aba "Gerenciar Conteúdo" para criar sua primeira série!
+                                                <div className="text-center py-12">
+                                                    <div className="relative">
+                                                        <Book className="h-16 w-16 text-amber-400/50 mx-auto mb-4" />
+                                                        <div className="absolute -inset-2 bg-amber-400/10 rounded-full blur opacity-50"></div>
+                                                    </div>
+                                                    <h3 className="font-semibold mb-2 text-white text-xl">Nenhuma série criada ainda</h3>
+                                                    <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                                                        Comece sua jornada como creator! Use a aba "Gerenciar Conteúdo" para criar sua primeira série.
                                                     </p>
-                                                    <Button onClick={() => setActiveTab('content')}>
+                                                    <Button
+                                                        onClick={() => setActiveTab('content')}
+                                                        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-medium transition-all duration-300 transform hover:scale-105"
+                                                    >
                                                         <Plus className="h-4 w-4 mr-2" />
                                                         Criar Primeira Série
                                                     </Button>
@@ -810,24 +865,54 @@ export default function App() {
 
                         {/* Analytics Tab */}
                         <TabsContent value="analytics">
-                            <div className="space-y-6">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Análises de Performance</CardTitle>
+                            <div className="space-y-8">
+                                <Card className="bg-black/40 backdrop-blur-sm border border-amber-500/20">
+                                    <CardHeader className="border-b border-amber-500/20">
+                                        <CardTitle className="text-white flex items-center gap-2">
+                                            <BarChart3 className="h-5 w-5 text-amber-400" />
+                                            Análises de Performance
+                                        </CardTitle>
                                     </CardHeader>
-                                    <CardContent>
-                                        <div className="text-center py-8">
-                                            <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                            <h3 className="font-semibold mb-2">Análises Detalhadas</h3>
-                                            <p className="text-muted-foreground">
-                                                Funcionalidade em desenvolvimento. Em breve você terá acesso a:
+                                    <CardContent className="p-8">
+                                        <div className="text-center py-12">
+                                            <div className="relative mb-6">
+                                                <BarChart3 className="h-20 w-20 text-amber-400/50 mx-auto" />
+                                                <div className="absolute -inset-4 bg-amber-400/10 rounded-full blur opacity-50"></div>
+                                            </div>
+                                            <h3 className="font-semibold mb-3 text-white text-2xl">Análises Detalhadas em Breve</h3>
+                                            <p className="text-slate-400 mb-8 max-w-lg mx-auto text-lg">
+                                                Estamos desenvolvendo um sistema completo de analytics para creators. Em breve você terá acesso a:
                                             </p>
-                                            <ul className="text-sm text-muted-foreground mt-4 space-y-1">
-                                                <li>• Métricas de visualização por capítulo</li>
-                                                <li>• Análise de engajamento dos leitores</li>
-                                                <li>• Estatísticas de retenção</li>
-                                                <li>• Relatórios de receita</li>
-                                            </ul>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                                                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <Eye className="h-5 w-5 text-amber-400" />
+                                                        <span className="font-medium text-white">Métricas de Visualização</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-400">Análise detalhada por capítulo e série</p>
+                                                </div>
+                                                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <Heart className="h-5 w-5 text-amber-400" />
+                                                        <span className="font-medium text-white">Engajamento dos Leitores</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-400">Curtidas, comentários e interações</p>
+                                                </div>
+                                                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <Users className="h-5 w-5 text-amber-400" />
+                                                        <span className="font-medium text-white">Retenção de Audiência</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-400">Taxa de leitores que retornam</p>
+                                                </div>
+                                                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <DollarSign className="h-5 w-5 text-amber-400" />
+                                                        <span className="font-medium text-white">Relatórios de Receita</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-400">Earnings e estatísticas financeiras</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -836,24 +921,54 @@ export default function App() {
 
                         {/* Settings Tab */}
                         <TabsContent value="settings">
-                            <div className="space-y-6">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Configurações do Creator</CardTitle>
+                            <div className="space-y-8">
+                                <Card className="bg-black/40 backdrop-blur-sm border border-amber-500/20">
+                                    <CardHeader className="border-b border-amber-500/20">
+                                        <CardTitle className="text-white flex items-center gap-2">
+                                            <Settings className="h-5 w-5 text-amber-400" />
+                                            Configurações do Creator
+                                        </CardTitle>
                                     </CardHeader>
-                                    <CardContent>
-                                        <div className="text-center py-8">
-                                            <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                            <h3 className="font-semibold mb-2">Configurações</h3>
-                                            <p className="text-muted-foreground">
-                                                Funcionalidade em desenvolvimento. Em breve você poderá configurar:
+                                    <CardContent className="p-8">
+                                        <div className="text-center py-12">
+                                            <div className="relative mb-6">
+                                                <Settings className="h-20 w-20 text-amber-400/50 mx-auto" />
+                                                <div className="absolute -inset-4 bg-amber-400/10 rounded-full blur opacity-50"></div>
+                                            </div>
+                                            <h3 className="font-semibold mb-3 text-white text-2xl">Configurações Avançadas</h3>
+                                            <p className="text-slate-400 mb-8 max-w-lg mx-auto text-lg">
+                                                Personalize sua experiência como creator. Em breve você poderá configurar:
                                             </p>
-                                            <ul className="text-sm text-muted-foreground mt-4 space-y-1">
-                                                <li>• Perfil público do criador</li>
-                                                <li>• Configurações de monetização</li>
-                                                <li>• Notificações e alertas</li>
-                                                <li>• Privacidade e segurança</li>
-                                            </ul>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                                                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <User className="h-5 w-5 text-amber-400" />
+                                                        <span className="font-medium text-white">Perfil Público</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-400">Bio, redes sociais e portfólio</p>
+                                                </div>
+                                                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <DollarSign className="h-5 w-5 text-amber-400" />
+                                                        <span className="font-medium text-white">Monetização</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-400">PayPal, Pix e configurações de pagamento</p>
+                                                </div>
+                                                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <Bell className="h-5 w-5 text-amber-400" />
+                                                        <span className="font-medium text-white">Notificações</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-400">Alertas de novos leitores e comentários</p>
+                                                </div>
+                                                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <Shield className="h-5 w-5 text-amber-400" />
+                                                        <span className="font-medium text-white">Privacidade</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-400">Controle de acesso e segurança</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </CardContent>
                                 </Card>
