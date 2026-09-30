@@ -145,7 +145,7 @@ A primeira versão do projeto tinha rotas de API com MongoDB, JWT e Auth0. Esse 
 
 ## Rodando localmente
 
-Pré-requisito: **Node.js 18.17+** (recomendado 20).
+Pré-requisito: **Node.js 18.17+** (recomendado 22).
 
 ```bash
 git clone https://github.com/VitoriaMir/Manna.git

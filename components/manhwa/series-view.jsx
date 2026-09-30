@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowDownUp, BookOpen, Check, Eye, Heart, Layers, Pencil, Share2, SearchX } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageShell } from '@/components/layout/page-shell'
@@ -100,6 +100,11 @@ export function SeriesView() {
       .map((x) => x.s)
     return { series, chapters, favCount, entry, related, creator: creatorName(state, series) }
   }, [state, id, user])
+
+  const title = data?.series.title
+  useEffect(() => {
+    if (title) document.title = `${title} · Manna`
+  }, [title])
 
   if (!hydrated && !data) {
     return (
